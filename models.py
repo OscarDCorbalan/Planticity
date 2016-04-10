@@ -27,6 +27,14 @@ class GameForm(messages.Message):
     user_name = messages.StringField(5, required=True)
 
 
+class ScoreForm(messages.Message):
+    """ScoreForm for outbound Score information"""
+    user_name = messages.StringField(1, required=True)
+    date = messages.StringField(2, required=True)
+    won = messages.BooleanField(3, required=True)
+    harvest = messages.IntegerField(4, required=True)
+
+
 # ndb models
 
 class User(ndb.Model):
@@ -64,6 +72,7 @@ class Plant(ndb.Model):
         print 'plant', plant
         return plant
 
+
 class Game(ndb.Model):
     """Game object"""
     # TODO: history = ndb.????
@@ -99,7 +108,22 @@ class Game(ndb.Model):
         self.game_over = True
         self.put()
         # Add the game to the score 'board'
-        score = Score(user=self.user, date=date.today(), won=won,
-                      guesses=self.attempts_allowed - self.attempts_remaining)
+        score = Score(user=self.user,
+                      date=date.today(),
+                      won=won,
+                      harvest=self.plant.get().harvested)
         score.put()
 
+
+class Score(ndb.Model):
+    """Score object"""
+    user = ndb.KeyProperty(required=True, kind='User')
+    date = ndb.DateProperty(required=True)
+    won = ndb.BooleanProperty(required=True)
+    harvest = ndb.IntegerProperty(required=True)
+
+    def to_form(self):
+        return ScoreForm(user_name=self.user.get().name,
+                         won=self.won,
+                         date=str(self.date),
+                         harvest=self.harvest)
