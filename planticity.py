@@ -16,9 +16,10 @@ class Planticity(remote.Service):
                       http_method='POST')
     def create_user(self, request):
         """Create a User. Requires a unique username"""
-        # TODO Check if user exists: throws exception
+        if User.query(User.name == request.user_name).get():
+            raise endpoints.ConflictException(
+                    'A User with that name already exists!')
 
-        # Create user
         user = User(name=request.user_name, email=request.email)
         user.put()
         return StringMessage(message='User {} created!'.format(
