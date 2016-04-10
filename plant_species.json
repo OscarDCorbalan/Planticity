@@ -1,0 +1,24 @@
+{
+    "species" : {
+        "pea" : {        
+            "name": "Pisum Sativum",
+            "common_name": "Pea",
+            "maturity_days": 60,
+            "ideal": {
+                "temp": 20,
+                "moisture": 0.4
+            },
+            "seed": {
+                "depth": 5,
+                "fertilize": false,
+                "fungicide": true,
+                "insecticide": true
+            },
+            "plant": {
+                "fertilize": false,
+                "fungicide": false,
+                "insecticide": false
+            }
+        }
+    }
+}
