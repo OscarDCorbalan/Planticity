@@ -1,4 +1,5 @@
 import json
+import logging
 from google.appengine.ext import ndb
 from protorpc import messages
 
@@ -21,7 +22,7 @@ class NewGameForm(messages.Message):
 class GameForm(messages.Message):
     """GameForm for outbound game state information"""
     urlsafe_key = messages.StringField(1, required=True)
-    plant_look = messages.StringField(2, required=True)
+    game_status = messages.StringField(2, required=True)
     game_over = messages.BooleanField(3, required=True)
     message = messages.StringField(4, required=True)
     user_name = messages.StringField(5, required=True)
@@ -34,6 +35,9 @@ class ScoreForm(messages.Message):
     won = messages.BooleanField(3, required=True)
     harvest = messages.IntegerField(4, required=True)
 
+class MakeMoveForm(messages.Message):
+    """Used to make a move in an existing game"""
+    action = messages.StringField(1, required=True)
 
 # ndb models
 
@@ -63,14 +67,72 @@ class Plant(ndb.Model):
     def new_plant(cls):
         # TODO add more species, choose randomly
         variety =  PLANT_SPECIES['pea']
-        print PLANT_SPECIES
-        print variety
+        logging.debug(PLANT_SPECIES)
+        logging.debug(variety)
         plant = Plant(name = variety['name'],
                       common_name = variety['common_name'],
                       look = "It's a %s seed" %variety['common_name'])
+        plant.update_look()
         plant.put()
-        print 'plant', plant
+        logging.debug('plant', plant)
         return plant
+
+    def interact(self, action):
+        logging.debug(action)
+        logging.debug(self.status)
+        if self.status == 'seed':
+            logging.debug('Status is  seed')
+            if action == 'plant seed':
+                self.plant_seed()
+                logging.debug('Plant seed')
+                # do something
+            elif action == 'fungicide':
+                # TODO
+                logging.debug('Fungicide not implemented')
+            elif action == 'insecticide':
+                # TODO
+                logging.debug('Insecticide not implemented')
+            else:
+                logging.debug('raise')
+                raise NotImplementedError('Action %s not possible!' % action)
+        else:
+            # TODO
+            raise NotImplementedError('Actions not implemented when not seed')
+        self.increment_age()
+        self.put()
+        return self.status
+
+    def increment_age(self):
+        self.age = self.age + 1
+        self.put()
+
+    def plant_seed(self):
+        if self.status != 'seed':
+            raise ValueError('You have already planted your seed')
+        self.status = "planted"
+        self.update_look()
+        self.put()
+
+    def update_look(self):
+        looks = []  # Append texts and finally join them in a single string
+        if self.status == 'seed':
+            looks.append('You have a fertile seed and is time to plant it')
+        elif self.status == 'planted':            
+            looks.append('The seed is planted, it will germinate with patience and water')
+
+        if self.moisture == 0:
+            looks.append('The soil is completely dry')
+        elif self.moisture < 25:
+            looks.append('The soil looks quite dry')
+        elif self.moisture < 50:
+            looks.append('The soil is moist')
+        elif self.moisture < 75:
+            looks.append('The soil is wet')
+        else:
+            looks.append('The soil is swamped')
+
+        looks.append('Moisture: %s' % self.moisture)
+        self.look = '. '.join(looks)
 
 
 class Game(ndb.Model):
@@ -88,16 +150,16 @@ class Game(ndb.Model):
                     plant = Plant.new_plant().key,
                     game_over=False)
         game.put()
-        print 'game:', game
+        logging.debug('game:', game)
         return game
 
     def to_form(self, message):
         """Returns a GameForm representation of the Game"""
-        print 'self:', self, '------', message
+        logging.debug('self:', self, '------', message)
         form = GameForm()
         form.urlsafe_key = self.key.urlsafe()
         form.user_name = self.user.get().name
-        form.plant_look = self.plant.get().look
+        form.game_status = self.plant.get().look
         form.game_over = self.game_over
         form.message = message
         return form
