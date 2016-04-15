@@ -1,8 +1,11 @@
 import endpoints
 import logging
 from protorpc import remote, messages
-from models import (Game, GameForm, MakeMoveForm, NewGameForm, StringMessage, 
-    User)
+from models.game import Game
+from models.messages import GameForm, MakeMoveForm, NewGameForm, StringMessage
+from models.plant import Plant
+from models.score import Score
+from models.user import User
 from utils import get_by_urlsafe
 
 NEW_GAME_REQUEST = endpoints.ResourceContainer(NewGameForm)
