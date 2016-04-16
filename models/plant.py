@@ -88,6 +88,7 @@ class Plant(ndb.Model):
 
     def end_day(self):
         self.age = self.age + 1
+        self.moisture = max(self.moistre - random.randint(10, 30), 0)
         if self.age == self.days_germinate:
             self._germinate()        
         self._update_look()
