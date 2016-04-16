@@ -16,6 +16,7 @@ WAIT = 'wait'
 PLANT_SEED = 'plant seed'
 WATER = 'water'
 FUNGICIDE = 'fungicide'
+FUMIGATE = 'fumigate'
 # Dictionary of status:[list of possible actions for this status]
 STATUS_ACTIONS = {
     SEED: [
@@ -29,7 +30,8 @@ STATUS_ACTIONS = {
     PLANT:[
         WAIT,
         WATER,
-        FUNGICIDE
+        FUNGICIDE,
+        FUMIGATE
     ]
 }
 
@@ -52,6 +54,7 @@ class Plant(ndb.Model):
     # insecticide = ndb....
     # Infection markers
     fungi = ndb.BooleanProperty(required=True, default=False)
+    plague = ndb.BooleanProperty(required=True, default=False)
     # insects = ndb.StringProperty()
 
     @classmethod
@@ -98,6 +101,9 @@ class Plant(ndb.Model):
         if action == FUNGICIDE:
             logging.debug('_interact_seed: fungicide seed')
             self._fungicide()
+        if action == FUMIGATE:
+            logging.debug('_interact_seed: fumigate seed')
+            self._fumigate()
 
     def _interact_planted(self, action):
         if action == WATER:
@@ -111,6 +117,9 @@ class Plant(ndb.Model):
         if action == FUNGICIDE:
             logging.debug('_interact_plant: fungicide plant')
             self._fungicide()
+        if action == FUMIGATE:
+            logging.debug('_interact_plant: fumigate plant')
+            self._fumigate()
 
     def end_day(self):
         data = PLANT_SPECIES[self.name]
@@ -139,12 +148,21 @@ class Plant(ndb.Model):
             if fungi_chance > dice:
                 self.fungi = True
 
+        # Roll plague chance
+        if self.status != SEED and not self.plague:
+            plague_chance = data[self.status]['plague_chance']
+            dice = random.randint(0, 100)
+            if plague_chance > dice:
+                self.plague = True
+
         # Adjust plant stress
         if self.status == PLANT:
             moisture_diff = abs(self.moisture - data['ideal_moisture'])
             logging.debug('end_day moisture_diff: %s', moisture_diff)
             self.stress = self.stress + moisture_diff - 30
             if self.fungi:
+                self.stress += 25
+            if self.plague:
                 self.stress += 25
             self.stress = min(self.stress, 100)
             self.stress = max(self.stress, 0)
@@ -176,6 +194,10 @@ class Plant(ndb.Model):
         logging.debug('_fungicide()')
         self.fungi = False
 
+    def _fumigate(self):
+        logging.debug('_fumigate()')
+        self.plague = False
+
     def _update_look(self):
         looks = []  # Append texts and finally join them in a single string
         looks.append('Day %s' % self.age)
@@ -193,7 +215,9 @@ class Plant(ndb.Model):
         if self.status in [PLANT]:  #, MATURE]:
             looks.append('It measures %s cm' % self.size)
             if self.fungi:
-                looks.append('The plant got fungi! You should use fungicide')
+                looks.append('The plant got fungi! You should use fungicide')            
+            if self.plague:
+                looks.append('The plant got a plague! You should fumigate')
 
         if self.moisture == 0:
             looks.append('The soil is completely dry')

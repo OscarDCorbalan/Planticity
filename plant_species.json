@@ -11,16 +11,16 @@
             "ideal_moisture": 40,
             "seed": {
                 "depth": 5,
-                "fertilize": false,
-                "insecticide": true
+                "fertilize": false
             },
             "planted": {
-                "fungi_chance": 50
+                "fungi_chance": 30,
+                "plague_chance": 30
             },
             "plant": {
                 "fertilize": false,
                 "fungi_chance": 1,
-                "insecticide": false
+                "plague_chance": 7
             }
         }
     }
