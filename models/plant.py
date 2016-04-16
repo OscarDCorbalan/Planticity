@@ -4,6 +4,7 @@ import random
 from google.appengine.ext import ndb
 
 # Load species data
+# TODO put it in memcache to speed things up
 PLANT_SPECIES = json.loads(open('plant_species.json', 'r').read())['species']
 
 # Status
@@ -46,9 +47,6 @@ class Plant(ndb.Model):
     moisture = ndb.IntegerProperty(required=True, default=0)
     # plague = ndb.StringProperty()
     # stress = ndb.IntegerProperty(required=True, default=0)
-    growth_rate = ndb.FloatProperty(required=True)
-    days_germinate = ndb.IntegerProperty(required=True)
-    ideal_moisture = ndb.IntegerProperty(required=True)
     fungi = ndb.BooleanProperty(required=True, default=False)
 
     @classmethod
@@ -59,10 +57,7 @@ class Plant(ndb.Model):
         logging.debug(variety)
         plant = Plant(name = variety['name'],
                       common_name = variety['common_name'],
-                      look = "It's a %s seed" %variety['common_name'],
-                      growth_rate = variety['growth_rate'],
-                      days_germinate = variety['days']['germinate'],
-                      ideal_moisture = variety['ideal']['moisture'])
+                      look = "It's a %s seed" %variety['common_name'])
         plant._update_look()
         plant.put()
         logging.debug('plant', plant)
@@ -105,18 +100,20 @@ class Plant(ndb.Model):
             self._water()
 
     def end_day(self):
+        data = PLANT_SPECIES[self.name]
+
         self.age += 1
         lost_water = random.randint(10, 20)
         self.moisture = max(self.moisture - lost_water, 0)
-        if self.age == self.days_germinate:
+        if self.age == data['days']['germinate']:
             self._germinate()
         if self.status == PLANT:
             # Add % of growth_rate
-            day_growth = 0.01 * (100-self.stress) * self.growth_rate
+            day_growth = 0.01 * (100-self.stress) * data['growth_rate']
             logging.debug('end_day growth: %s', day_growth)
             self.size += int(day_growth)
         if self.status == PLANT:
-            moisture_diff = abs(self.moisture - self.ideal_moisture)
+            moisture_diff = abs(self.moisture - data['ideal_moisture'])
             logging.debug('end_day moisture_diff: %s', moisture_diff)
             self.stress = self.stress + moisture_diff - 30
             self.stress = min(self.stress, 100)
@@ -134,7 +131,8 @@ class Plant(ndb.Model):
         if not self.status == PLANTED:
             raise ValueError('Error! To germinate, status should be planted')
         self.status = PLANT
-        self.stress = abs(self.moisture - self.ideal_moisture)
+        self.stress = abs(
+            self.moisture - PLANT_SPECIES[self.name]['ideal_moisture'])
 
     # Actions that modify the plant vars
     def _water(self):
@@ -146,7 +144,7 @@ class Plant(ndb.Model):
         looks = []  # Append texts and finally join them in a single string
         looks.append('Day %s' % self.age)
 
-        if self.age == self.days_germinate:
+        if self.age == PLANT_SPECIES[self.name]['days']['germinate']:
             looks.append('The seed just germinated')
 
         if self.status == SEED:
@@ -171,6 +169,7 @@ class Plant(ndb.Model):
             looks.append('The soil is swamped')
 
         looks.append('Moisture: %s%%' % self.moisture)
-        looks.append('Stress: %s%%' % self.stress)
+        if self.status != SEED and self.status != PLANTED:
+            looks.append('Stress: %s%%' % self.stress)
 
         self.look = '. '.join(looks)
