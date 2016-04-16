@@ -62,19 +62,24 @@ class Plant(ndb.Model):
             raise NotImplementedError('Action %s not recognized!' % action)
 
         if self.status == SEED:
-            logging.debug('Status is seed')
-            if action == PLANT_SEED:
-                logging.debug('Plant seed')
-                self._plant_seed()
+            self._interact_seed(action)
         elif self.status == PLANTED:
-            if action == WATER:
-                logging.debug('Water planted seed')
-                self._water()
+            self._interact_planted(action)
         else:
             raise NotImplementedError('Actions not implemented when not seed')
         
         self.end_day()
         return self.status
+
+    def _interact_seed(self, action):
+        if action == PLANT_SEED:
+            logging.debug('_interact_seed: plant seed')
+            self._plant_seed()
+
+    def _interact_planted(self, action):
+        if action == WATER:
+            logging.debug('_interact_planted: water planted')
+            self._water()
 
     def end_day(self):
         self.age = self.age + 1
