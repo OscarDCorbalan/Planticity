@@ -9,6 +9,7 @@ PLANT_SPECIES = json.loads(open('plant_species.json', 'r').read())['species']
 # Status
 SEED = 'seed'
 PLANTED  = 'planted'
+PLANT = 'plant'
 # Actions
 PLANT_SEED = 'plant seed'
 WATER = 'water'
@@ -19,7 +20,8 @@ STATUS_ACTIONS = {
     ],
     PLANTED: [
         WATER
-    ]
+    ],
+    PLANT:[]
 }
 
 RANDOM = random.seed()
@@ -39,6 +41,7 @@ class Plant(ndb.Model):
     moisture = ndb.IntegerProperty(required=True, default=0)
     # plague = ndb.StringProperty()
     # stress = ndb.IntegerProperty(required=True, default=0)
+    days_germinate = ndb.IntegerProperty(required=True)
 
     @classmethod
     def new_plant(cls):
@@ -48,7 +51,8 @@ class Plant(ndb.Model):
         logging.debug(variety)
         plant = Plant(name = variety['name'],
                       common_name = variety['common_name'],
-                      look = "It's a %s seed" %variety['common_name'])
+                      look = "It's a %s seed" %variety['common_name'],
+                      days_germinate = variety['days']['germinate'])
         plant._update_look()
         plant.put()
         logging.debug('plant', plant)
@@ -83,25 +87,41 @@ class Plant(ndb.Model):
             self._water()
 
     def end_day(self):
-        self._update_look()
         self.age = self.age + 1
+        if self.age == self.days_germinate:
+            self._germinate()        
+        self._update_look()
         self.put()
 
+    # Methods that progress the status of the plant
     def _plant_seed(self):
         if self.status != SEED:
             raise ValueError('You have already planted your seed')
         self.status = PLANTED
 
+    def _germinate(self):
+        if not self.status == PLANTED:
+            raise ValueError('Error! To germinate, status should be planted')
+        self.status = PLANT
+
+    # Actions that modify the plant vars
     def _water(self):
         retained_water = random.randint(20, 80)
         self.moisture = min(self.moisture + retained_water, 100)
 
     def _update_look(self):
         looks = []  # Append texts and finally join them in a single string
+        looks.append('Day %s' % self.age)
+
+        if self.age == self.days_germinate:
+            looks.append('The seed just germinated')
+
         if self.status == 'seed':
             looks.append('You have a fertile seed and is time to plant it')
-        elif self.status == 'planted':            
+        elif self.status == 'planted':
             looks.append('The seed is planted, it will germinate with patience and water')
+        elif self.status == 'plant':
+            looks.append('The plant is growing')
 
         if self.moisture == 0:
             looks.append('The soil is completely dry')
@@ -114,6 +134,5 @@ class Plant(ndb.Model):
         else:
             looks.append('The soil is swamped')
 
-        looks.append('Age: %s' % self.age)
         looks.append('Moisture: %s' % self.moisture)
         self.look = '. '.join(looks)
