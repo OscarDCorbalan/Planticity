@@ -83,10 +83,10 @@ class Planticity(remote.Service):
             return game.to_form('Game already over!')
 
         plant = game.plant.get()
+        logging.debug('make_move action: %s', request.action)
         try:
-            logging.debug('make_move try act: %s', request.action)
             action_result = plant.interact(request.action)
-            logging.debug('make_move try res: %s', action_result)
+            logging.debug('make_move result: %s', action_result)
         except NotImplementedError as e:
             raise endpoints.BadRequestException(e)
         return game.to_form(action_result)
