@@ -7,9 +7,9 @@
                 "germinate": 3,
                 "maturity": 60
             },
-            "ideal_conditions": {
+            "ideal": {
                 "temp": 20,
-                "moisture": 0.4
+                "moisture": 40
             },
             "seed": {
                 "depth": 5,

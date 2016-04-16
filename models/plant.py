@@ -38,10 +38,12 @@ class Plant(ndb.Model):
     # Gives hints about moisture, stress...
     look = ndb.StringProperty()
     # Internal data, user can't directly see these numbers
+    stress = ndb.IntegerProperty()
     moisture = ndb.IntegerProperty(required=True, default=0)
     # plague = ndb.StringProperty()
     # stress = ndb.IntegerProperty(required=True, default=0)
     days_germinate = ndb.IntegerProperty(required=True)
+    ideal_moisture = ndb.IntegerProperty(required=True)
 
     @classmethod
     def new_plant(cls):
@@ -52,7 +54,8 @@ class Plant(ndb.Model):
         plant = Plant(name = variety['name'],
                       common_name = variety['common_name'],
                       look = "It's a %s seed" %variety['common_name'],
-                      days_germinate = variety['days']['germinate'])
+                      days_germinate = variety['days']['germinate'],
+                      ideal_moisture = variety['ideal']['moisture'])
         plant._update_look()
         plant.put()
         logging.debug('plant', plant)
@@ -96,7 +99,6 @@ class Plant(ndb.Model):
     def end_day(self):
         self.age = self.age + 1
         lost_water = random.randint(10, 30)
-        logging.debug('end_day cur:%s los:%s', self.moisture, lost_water)
         self.moisture = max(self.moisture - lost_water, 0)
         if self.age == self.days_germinate:
             self._germinate()        
@@ -113,6 +115,7 @@ class Plant(ndb.Model):
         if not self.status == PLANTED:
             raise ValueError('Error! To germinate, status should be planted')
         self.status = PLANT
+        self.stress = abs(self.moisture - self.ideal_moisture)
 
     # Actions that modify the plant vars
     def _water(self):
