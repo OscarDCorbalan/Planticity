@@ -83,8 +83,8 @@ class Plant(ndb.Model):
             self._water()
 
     def end_day(self):
-        self.age = self.age + 1
         self._update_look()
+        self.age = self.age + 1
         self.put()
 
     def _plant_seed(self):
