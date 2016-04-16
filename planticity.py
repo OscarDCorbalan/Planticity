@@ -77,21 +77,17 @@ class Planticity(remote.Service):
                       http_method='PUT')
     def make_move(self, request):
         '''Makes a move. Returns a game state with message'''
-        logging.debug('make move plant')
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
-        logging.debug('make move game %s', game)
+        logging.debug('make_move game %s', game)
         if game.game_over:
-            logging.debug('if')
             return game.to_form('Game already over!')
 
         plant = game.plant.get()
-        logging.debug('make move plant %s', plant)
         try:
-            logging.debug('make move try')
+            logging.debug('make_move try act: %s', request.action)
             action_result = plant.interact(request.action)
-            logging.debug('make move result %s', action_result)
+            logging.debug('make_move try res: %s', action_result)
         except NotImplementedError as e:
-            logging.debug('make move except %s', e)
             raise endpoints.BadRequestException(e)
         return game.to_form(action_result)
 
