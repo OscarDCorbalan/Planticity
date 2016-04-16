@@ -49,11 +49,12 @@ class Plant(ndb.Model):
     growth_rate = ndb.FloatProperty(required=True)
     days_germinate = ndb.IntegerProperty(required=True)
     ideal_moisture = ndb.IntegerProperty(required=True)
+    fungi = ndb.BooleanProperty(required=True, default=False)
 
     @classmethod
     def new_plant(cls):
         # TODO add more species, choose randomly
-        variety =  PLANT_SPECIES['pea']
+        variety =  PLANT_SPECIES['Pisum Sativum']
         logging.debug(PLANT_SPECIES)
         logging.debug(variety)
         plant = Plant(name = variety['name'],
