@@ -23,7 +23,7 @@ class Game(ndb.Model):
 
     def to_form(self, message):
         """Returns a GameForm representation of the Game"""
-        logging.debug('self:', self, '------', message)
+        logging.debug('self: %s -- %s', self, message)
         form = GameForm()
         form.urlsafe_key = self.key.urlsafe()
         form.user_name = self.user.get().name
