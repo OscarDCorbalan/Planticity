@@ -46,6 +46,7 @@ class Plant(ndb.Model):
     moisture = ndb.IntegerProperty(required=True, default=0)
     # plague = ndb.StringProperty()
     # stress = ndb.IntegerProperty(required=True, default=0)
+    growth_rate = ndb.FloatProperty(required=True)
     days_germinate = ndb.IntegerProperty(required=True)
     ideal_moisture = ndb.IntegerProperty(required=True)
 
@@ -58,6 +59,7 @@ class Plant(ndb.Model):
         plant = Plant(name = variety['name'],
                       common_name = variety['common_name'],
                       look = "It's a %s seed" %variety['common_name'],
+                      growth_rate = variety['growth_rate'],
                       days_germinate = variety['days']['germinate'],
                       ideal_moisture = variety['ideal']['moisture'])
         plant._update_look()
@@ -102,11 +104,22 @@ class Plant(ndb.Model):
             self._water()
 
     def end_day(self):
-        self.age = self.age + 1
-        lost_water = random.randint(10, 30)
+        self.age += 1
+        lost_water = random.randint(10, 20)
         self.moisture = max(self.moisture - lost_water, 0)
         if self.age == self.days_germinate:
-            self._germinate()        
+            self._germinate()
+        if self.status == PLANT:
+            # Add % of growth_rate
+            day_growth = 0.01 * (100-self.stress) * self.growth_rate
+            logging.debug('end_day growth: %s', day_growth)
+            self.size += int(day_growth)
+        if self.status == PLANT:
+            moisture_diff = abs(self.moisture - self.ideal_moisture)
+            logging.debug('end_day moisture_diff: %s', moisture_diff)
+            self.stress = self.stress + moisture_diff - 30
+            self.stress = min(self.stress, 100)
+            self.stress = max(self.stress, 0)
         self._update_look()
         self.put()
 
@@ -124,7 +137,7 @@ class Plant(ndb.Model):
 
     # Actions that modify the plant vars
     def _water(self):
-        retained_water = random.randint(20, 80)        
+        retained_water = random.randint(30, 70)        
         logging.debug('_water cur:%s ret:%s', self.moisture, retained_water)
         self.moisture = min(self.moisture + retained_water, 100)
 
@@ -142,6 +155,9 @@ class Plant(ndb.Model):
         elif self.status == PLANT:
             looks.append('The plant is growing')
 
+        if self.status in [PLANT]:  #, MATURE]:
+            looks.append('It measures %s cm' % self.size)
+
         if self.moisture == 0:
             looks.append('The soil is completely dry')
         elif self.moisture < 25:
@@ -153,5 +169,7 @@ class Plant(ndb.Model):
         else:
             looks.append('The soil is swamped')
 
-        looks.append('Moisture: %s' % self.moisture)
+        looks.append('Moisture: %s%%' % self.moisture)
+        looks.append('Stress: %s%%' % self.stress)
+
         self.look = '. '.join(looks)
