@@ -58,15 +58,16 @@ class Plant(ndb.Model):
         logging.debug('do %s in status: %s', action, self.status)
 
         possible_actions = STATUS_ACTIONS[self.status]
+        if not possible_actions:
+            raise NotImplementedError('Status not recognized.')
         if not action in possible_actions:
             raise NotImplementedError('Action %s not recognized!' % action)
 
+        # At this point it's secure to proceed without more checks
         if self.status == SEED:
             self._interact_seed(action)
         elif self.status == PLANTED:
             self._interact_planted(action)
-        else:
-            raise NotImplementedError('Actions not implemented when not seed')
         
         self.end_day()
         return self.status
