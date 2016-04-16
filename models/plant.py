@@ -11,17 +11,21 @@ SEED = 'seed'
 PLANTED  = 'planted'
 PLANT = 'plant'
 # Actions
+WAIT = 'wait'
 PLANT_SEED = 'plant seed'
 WATER = 'water'
 # Dictionary of status:[list of possible actions for this status]
 STATUS_ACTIONS = {
     SEED: [
+        WAIT,
         PLANT_SEED
     ],
     PLANTED: [
+        WAIT,
         WATER
     ],
     PLANT:[
+        WAIT,
         WATER
     ]
 }
@@ -71,12 +75,13 @@ class Plant(ndb.Model):
             raise NotImplementedError('Action %s not recognized!' % action)
 
         # At this point it's secure to proceed without more checks
-        if self.status == SEED:
-            self._interact_seed(action)
-        elif self.status == PLANTED:
-            self._interact_planted(action)
-        elif self.status == PLANT:
-            self._interact_plant(action)
+        if action != WAIT:
+            if self.status == SEED:
+                self._interact_seed(action)
+            elif self.status == PLANTED:
+                self._interact_planted(action)
+            elif self.status == PLANT:
+                self._interact_plant(action)
         
         self.end_day()
         return self.status
