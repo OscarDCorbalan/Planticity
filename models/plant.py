@@ -21,10 +21,10 @@ STATUS_ACTIONS = {
     PLANTED: [
         WATER
     ],
-    PLANT:[]
+    PLANT:[
+        WATER
+    ]
 }
-
-RANDOM = random.seed()
 
 class Plant(ndb.Model):
     """Plant data"""
@@ -72,6 +72,8 @@ class Plant(ndb.Model):
             self._interact_seed(action)
         elif self.status == PLANTED:
             self._interact_planted(action)
+        elif self.status == PLANT:
+            self._interact_plant(action)
         
         self.end_day()
         return self.status
@@ -86,9 +88,16 @@ class Plant(ndb.Model):
             logging.debug('_interact_planted: water planted')
             self._water()
 
+    def _interact_plant(self, action):
+        if action == WATER:
+            logging.debug('_interact_plant: water plant')
+            self._water()
+
     def end_day(self):
         self.age = self.age + 1
-        self.moisture = max(self.moistre - random.randint(10, 30), 0)
+        lost_water = random.randint(10, 30)
+        logging.debug('end_day cur:%s los:%s', self.moisture, lost_water)
+        self.moisture = max(self.moisture - lost_water, 0)
         if self.age == self.days_germinate:
             self._germinate()        
         self._update_look()
@@ -107,7 +116,8 @@ class Plant(ndb.Model):
 
     # Actions that modify the plant vars
     def _water(self):
-        retained_water = random.randint(20, 80)
+        retained_water = random.randint(20, 80)        
+        logging.debug('_water cur:%s ret:%s', self.moisture, retained_water)
         self.moisture = min(self.moisture + retained_water, 100)
 
     def _update_look(self):
