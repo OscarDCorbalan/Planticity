@@ -1,5 +1,6 @@
 import json
 import logging
+import random
 from google.appengine.ext import ndb
 
 # Load species data
@@ -10,13 +11,18 @@ SEED = 'seed'
 PLANTED  = 'planted'
 # Actions
 PLANT_SEED = 'plant seed'
+WATER = 'water'
 # Dictionary of status:[list of possible actions for this status]
 STATUS_ACTIONS = {
     SEED: [
         PLANT_SEED
     ],
-    PLANTED: []
+    PLANTED: [
+        WATER
+    ]
 }
+
+RANDOM = random.seed()
 
 class Plant(ndb.Model):
     """Plant data"""
@@ -43,7 +49,7 @@ class Plant(ndb.Model):
         plant = Plant(name = variety['name'],
                       common_name = variety['common_name'],
                       look = "It's a %s seed" %variety['common_name'])
-        plant.update_look()
+        plant._update_look()
         plant.put()
         logging.debug('plant', plant)
         return plant
@@ -59,7 +65,11 @@ class Plant(ndb.Model):
             logging.debug('Status is seed')
             if action == PLANT_SEED:
                 logging.debug('Plant seed')
-                self.plant_seed()
+                self._plant_seed()
+        elif self.status == PLANTED:
+            if action == WATER:
+                logging.debug('Water planted seed')
+                self._water()
         else:
             raise NotImplementedError('Actions not implemented when not seed')
         
@@ -68,16 +78,19 @@ class Plant(ndb.Model):
 
     def end_day(self):
         self.age = self.age + 1
+        self._update_look()
         self.put()
 
-    def plant_seed(self):
-        if self.status != 'seed':
+    def _plant_seed(self):
+        if self.status != SEED:
             raise ValueError('You have already planted your seed')
-        self.status = "planted"
-        self.update_look()
-        self.put()
+        self.status = PLANTED
 
-    def update_look(self):
+    def _water(self):
+        retained_water = random.randint(20, 80)
+        self.moisture = min(self.moisture + retained_water, 100)
+
+    def _update_look(self):
         looks = []  # Append texts and finally join them in a single string
         if self.status == 'seed':
             looks.append('You have a fertile seed and is time to plant it')
@@ -95,5 +108,6 @@ class Plant(ndb.Model):
         else:
             looks.append('The soil is swamped')
 
+        looks.append('Age: %s' % self.age)
         looks.append('Moisture: %s' % self.moisture)
         self.look = '. '.join(looks)
