@@ -1,10 +1,13 @@
 {
-    "species" : {
-        "pea" : {        
+    "species": {
+        "pea": {
             "name": "Pisum Sativum",
             "common_name": "Pea",
-            "maturity_days": 60,
-            "ideal": {
+            "days": {
+                "germinate": 3,
+                "maturity": 60
+            },
+            "ideal_conditions": {
                 "temp": 20,
                 "moisture": 0.4
             },
