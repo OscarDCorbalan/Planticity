@@ -12,12 +12,14 @@
             "seed": {
                 "depth": 5,
                 "fertilize": false,
-                "fungicide": true,
                 "insecticide": true
+            },
+            "planted": {
+                "fungi_chance": 50
             },
             "plant": {
                 "fertilize": false,
-                "fungicide": false,
+                "fungi_chance": 1,
                 "insecticide": false
             }
         }
