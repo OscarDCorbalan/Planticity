@@ -5,6 +5,18 @@ from google.appengine.ext import ndb
 # Load species data
 PLANT_SPECIES = json.loads(open('plant_species.json', 'r').read())['species']
 
+# Status
+SEED = 'seed'
+PLANTED  = 'planted'
+# Actions
+PLANT_SEED = 'plant seed'
+# Dictionary of status:[list of possible actions for this status]
+STATUS_ACTIONS = {
+    SEED: [
+        PLANT_SEED
+    ],
+    PLANTED: []
+}
 
 class Plant(ndb.Model):
     """Plant data"""
@@ -12,7 +24,7 @@ class Plant(ndb.Model):
     common_name = ndb.StringProperty(required=True)
     age = ndb.IntegerProperty(required=True, default=0)
     size = ndb.IntegerProperty(required=True, default=0)
-    status = ndb.StringProperty(required=True, default="seed")
+    status = ndb.StringProperty(required=True, default=SEED)
     # place = ndb.StringProperty() # Potted or soil...
     # light = ndb.StringProperty() #Sun, semi or shadow
     # Gives hints about moisture, stress...
@@ -37,31 +49,24 @@ class Plant(ndb.Model):
         return plant
 
     def interact(self, action):
-        logging.debug(action)
-        logging.debug(self.status)
-        if self.status == 'seed':
-            logging.debug('Status is  seed')
-            if action == 'plant seed':
-                self.plant_seed()
+        logging.debug('do %s in status: %s', action, self.status)
+
+        possible_actions = STATUS_ACTIONS[self.status]
+        if not action in possible_actions:
+            raise NotImplementedError('Action %s not recognized!' % action)
+
+        if self.status == SEED:
+            logging.debug('Status is seed')
+            if action == PLANT_SEED:
                 logging.debug('Plant seed')
-                # do something
-            elif action == 'fungicide':
-                # TODO
-                logging.debug('Fungicide not implemented')
-            elif action == 'insecticide':
-                # TODO
-                logging.debug('Insecticide not implemented')
-            else:
-                logging.debug('raise')
-                raise NotImplementedError('Action %s not possible!' % action)
+                self.plant_seed()
         else:
-            # TODO
             raise NotImplementedError('Actions not implemented when not seed')
-        self.increment_age()
-        self.put()
+        
+        self.end_day()
         return self.status
 
-    def increment_age(self):
+    def end_day(self):
         self.age = self.age + 1
         self.put()
 
