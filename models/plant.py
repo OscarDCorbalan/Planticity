@@ -116,11 +116,11 @@ class Plant(ndb.Model):
         if self.age == self.days_germinate:
             looks.append('The seed just germinated')
 
-        if self.status == 'seed':
+        if self.status == SEED:
             looks.append('You have a fertile seed and is time to plant it')
-        elif self.status == 'planted':
+        elif self.status == PLANTED:
             looks.append('The seed is planted, it will germinate with patience and water')
-        elif self.status == 'plant':
+        elif self.status == PLANT:
             looks.append('The plant is growing')
 
         if self.moisture == 0:
