@@ -17,24 +17,28 @@ ACTIONS = {
     'PLANT_SEED': 'plant seed',
     'WATER': 'water',
     'FUNGICIDE': 'fungicide',
-    'FUMIGATE': 'fumigate'
+    'FUMIGATE': 'fumigate',
+    'FERTILIZE': 'fertilize'
 }
 # Dictionary of pairs status : [list of actions allowed]
 STATUS_ACTIONS = {
     SEED: [
         ACTIONS['PLANT_SEED'],
         ACTIONS['FUNGICIDE'],
-        ACTIONS['FUMIGATE']
+        ACTIONS['FUMIGATE'],
+        ACTIONS['FERTILIZE']
     ],
     PLANTED: [
         ACTIONS['WAIT'],
-        ACTIONS['WATER']
+        ACTIONS['WATER'],
+        ACTIONS['FERTILIZE']
     ],
     PLANT:[
         ACTIONS['WAIT'],
         ACTIONS['WATER'],
         ACTIONS['FUNGICIDE'],
-        ACTIONS['FUMIGATE']
+        ACTIONS['FUMIGATE'],
+        ACTIONS['FERTILIZE']
     ]
 }
 
@@ -52,6 +56,8 @@ class Plant(ndb.Model):
     # Internal data, user can't directly see these numbers
     stress = ndb.IntegerProperty(required=True, default=0)
     moisture = ndb.IntegerProperty(required=True, default=0)
+    # Amount of fertilizer in soil
+    fertilizer = ndb.IntegerProperty(required=True, default=0)
     # Days of prevention effect left
     fungicide = ndb.IntegerProperty(required=True, default=0)
     fumigation = ndb.IntegerProperty(required=True, default=0)
@@ -88,6 +94,7 @@ class Plant(ndb.Model):
         # At this point it's secure to proceed without more checks
         logging.debug('executing action')
         if action == ACTIONS['WAIT']:
+            logging.debug('passing')
             pass
         elif action == ACTIONS['PLANT_SEED']:
             self._plant_seed()
@@ -97,6 +104,8 @@ class Plant(ndb.Model):
             self._fungicide()
         elif action == ACTIONS['FUMIGATE']:
             self._fumigate()
+        elif action == ACTIONS['FERTILIZE']:
+            self._fertilize()
 
         self.end_day()
         return self.status
@@ -104,11 +113,10 @@ class Plant(ndb.Model):
     def end_day(self):
         data = PLANT_SPECIES[self.name]
 
-        if self.status != SEED:
-            self.age += 1
-
+        self.age += 1 if self.status != SEED else 0
         self.fungicide -= 1 if self.fungicide > 0 else 0
         self.fumigation -= 1 if self.fumigation > 0 else 0
+        self.fertilizer -= 1 if self.fertilizer > 0 else 0
 
         # Reduce soil moisture
         lost_water = random.randint(10, 20)
@@ -122,6 +130,15 @@ class Plant(ndb.Model):
         if self.status == PLANT:
             # Add % of growth_rate
             day_growth = 0.01 * (100-self.stress) * data['growth_rate']
+            # Calculate an extra growth if fertilizer is in an ok range
+            ideal_fertilizer = data[self.status]['ideal_fertilizer']
+            fertilizer_diff = abs(self.fertilizer - ideal_fertilizer)
+            # Add up to 33% of normal growth rate if fertilizing is ok
+            if fertilizer_diff <= 10:
+                multiplier = 0.033 * fertilizer_diff
+                extra_growth = multiplier * data['growth_rate']
+                logging.debug('extra_growth: %s', extra_growth)
+                day_growth += extra_growth
             logging.debug('end_day growth: %s', day_growth)
             self.size += int(day_growth)
 
@@ -148,6 +165,11 @@ class Plant(ndb.Model):
                 self.stress += 25
             if self.plague:
                 self.stress += 25
+            # Add stress if fertilized +- 20% of ideal
+            ideal_fertilizer = data[self.status]['ideal_fertilizer']
+            fertilizer_diff = abs(self.fertilizer - ideal_fertilizer)
+            if fertilizer_diff > 20:
+                self.stress += fertilizer_diff - 20
             self.stress = min(self.stress, 100)
             self.stress = max(self.stress, 0)
         
@@ -186,16 +208,23 @@ class Plant(ndb.Model):
         self.fumigation = 5
         self._add_stress(10)
 
+    def _fertilize(self):
+        logging.debug('_fertilize()')
+        self.fertilizer = min(100, self.fertilizer + 10)
+
     # Helpers
 
     def _add_stress(self, amount):
+        assert amount >= 0
         self.stress = min(self.stress + amount, 100)
 
     def _update_look(self):
+        data = PLANT_SPECIES[self.name]
+
         looks = []  # Append texts and finally join them in a single string
         looks.append('Day %s' % self.age)
 
-        if self.age == PLANT_SPECIES[self.name]['evolution']['germination']:
+        if self.age == data['evolution']['germination']:
             looks.append('The seed just germinated')
 
         if self.status == SEED:
@@ -204,6 +233,17 @@ class Plant(ndb.Model):
             looks.append('The seed is planted, it will germinate with patience and water')
         elif self.status == PLANT:
             looks.append('The plant is growing')
+
+        if self.moisture == 0:
+            looks.append('The soil is completely dry')
+        elif self.moisture < 25:
+            looks.append('The soil looks quite dry')
+        elif self.moisture < 50:
+            looks.append('The soil is moist')
+        elif self.moisture < 75:
+            looks.append('The soil is wet')
+        else:
+            looks.append('The soil is swamped')
 
         if self.status in [PLANT]:  #, MATURE]:
             looks.append('It measures %s cm' % self.size)
@@ -222,18 +262,16 @@ class Plant(ndb.Model):
             looks.append('The fumigation effect will last %s more day%s' %
                 (self.fumigation, plural))
 
-        if self.moisture == 0:
-            looks.append('The soil is completely dry')
-        elif self.moisture < 25:
-            looks.append('The soil looks quite dry')
-        elif self.moisture < 50:
-            looks.append('The soil is moist')
-        elif self.moisture < 75:
-            looks.append('The soil is wet')
-        else:
-            looks.append('The soil is swamped')
+        if self.status == PLANT:
+            ideal_fertilizer = data[self.status]['ideal_fertilizer']
+            fertilizer_diff = self.fertilizer - ideal_fertilizer
+            if fertilizer_diff < -20:
+                looks.append('It seems the plant needs some extra nutrients')
+            elif fertilizer_diff > 20:
+                looks.append('The plant is suffering toxicity due to too much fertilizer')
 
         looks.append('Moisture: %s%%' % self.moisture)
+        looks.append('Fertilizer: %s%%' % self.fertilizer)
         if self.status != SEED and self.status != PLANTED:
             looks.append('Stress: %s%%' % self.stress)
 

@@ -9,10 +9,6 @@
                 "maturity": 60
             },
             "ideal_moisture": 40,
-            "seed": {
-                "depth": 5,
-                "fertilize": false
-            },
             "planted": {
                 "fungi_chance": 30,
                 "plague_chance": 30
@@ -20,7 +16,8 @@
             "plant": {
                 "fertilize": false,
                 "fungi_chance": 1,
-                "plague_chance": 7
+                "plague_chance": 7,
+                "ideal_fertilizer": 25
             }
         }
     }
