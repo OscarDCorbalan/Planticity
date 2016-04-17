@@ -134,88 +134,102 @@ class Plant(ndb.Model):
             self.fumigation -= 1 if self.fumigation > 0 else 0
             self.fertilizer -= 1 if self.fertilizer > 0 else 0
 
-        # Reduce soil moisture
-        lost_water = random.randint(10, 20)
-        self.moisture = max(self.moisture - lost_water, 0)
+        # Advances plant stages
+        self._evolve(data)
 
-        # Advance plant stages
-        if self.age == data['evolution']['germination']:
-            self._germinate()
-        if self.age == data['evolution']['maturity']:
-            self._mature()
-        if self.age == data['evolution']['yield']:
-            self._yield()
+        # Reduce soil moisture
+        self._consume_water()
 
         # Let the Nature do its miracle (cell mitosis)
         if self.status == PLANT:
-            # Add % of growth_rate
-            day_growth = 0.01 * (100-self.stress) * data['growth_rate']
-            # Calculate an extra growth if fertilizer is in an ok range
-            ideal_fertilizer = data[self.status]['ideal_fertilizer']
-            fertilizer_diff = abs(self.fertilizer - ideal_fertilizer)
-            # Add up to 33% of normal growth rate if fertilizing is ok
-            if fertilizer_diff < 10:
-                multiplier = 0.033 * (10 - fertilizer_diff)
-                extra_growth = multiplier * data['growth_rate']
-                logging.debug('extra_growth: %s', extra_growth)
-                day_growth += extra_growth
-            logging.debug('end_day growth: %s', day_growth)
-            self.size = round(self.size + day_growth, 1)
+            self._grow(data)
 
         # Let flowers grow!
         if self.status == MATURE:
-            fertilizer_diff = self._get_fertilizer_diff()
-            if fertilizer_diff < 20:
-                fertilizer_diff = fertilizer_diff * 0.05 
-            else:
-                fertilizer_diff = 0.4
-            fertile_factor = 1.2 - fertilizer_diff
-            growth_factor = self.size / data['adult_size']
-            stress_factor = 1 - 0.01 * self.stress            
-            random_factor = 0.01 * random.randint(90, 110)
-            flower_factor = growth_factor * stress_factor * random_factor
-            logging.debug('flower factors %s*%s*%s*%s=%s', fertile_factor, growth_factor, stress_factor, random_factor, flower_factor)
+            self._blossom(data)
 
-            daily_flowers = data[self.status]['flowers_day']            
-            fertile_flowers = flower_factor * daily_flowers
+        
+        if self.status in [PLANT, MATURE]:
+            # Roll against fungi and plague chances
+            self._roll_fungi(data)
+            self._roll_plague(data)
+            # Adjust plant stress
+            self._calc_plant_stress()
+        
+        self._update_look()
+        self.put()
 
-            self.flowers += int(fertile_flowers)
+    def _evolve(self, data):
+        if self.age == data['evolution']['germination']:
+            self._germinate()
+        elif self.age == data['evolution']['maturity']:
+            self._mature()
+        elif self.age == data['evolution']['yield']:
+            self._yield()
 
-        # Roll fungi chance
-        if self.status in [PLANT, MATURE] \
-        and not self.fungi and self.fungicide == 0:
+    def _consume_water(self):
+        lost_water = random.randint(10, 20)
+        self.moisture = max(self.moisture - lost_water, 0)
+
+    def _grow(self, data):
+        # Add % of growth_rate
+        day_growth = 0.01 * (100-self.stress) * data['growth_rate']
+        # Add up to 33% of normal growth rate if fertilizing is ok
+        fertilizer_diff = self._get_fertilizer_diff()
+        if fertilizer_diff < 10:
+            multiplier = 0.033 * (10 - fertilizer_diff)
+            extra_growth = multiplier * data['growth_rate']
+            logging.debug('extra_growth: %s', extra_growth)
+            day_growth += extra_growth
+        logging.debug('end_day growth: %s', day_growth)
+        self.size = round(self.size + day_growth, 1)
+
+    def _blossom(self, data):
+        fertilizer_diff = self._get_fertilizer_diff()
+        if fertilizer_diff < 20:
+            fertilizer_diff = fertilizer_diff * 0.05 
+        else:
+            fertilizer_diff = 0.4
+        fertile_factor = 1.2 - fertilizer_diff
+        growth_factor = self.size / data['adult_size']
+        stress_factor = 1 - 0.01 * self.stress            
+        random_factor = 0.01 * random.randint(90, 110)
+        flower_factor = growth_factor * stress_factor * random_factor
+        logging.debug('flower factors %s*%s*%s*%s=%s', fertile_factor, growth_factor, stress_factor, random_factor, flower_factor)
+
+        daily_flowers = data[self.status]['flowers_day']            
+        fertile_flowers = flower_factor * daily_flowers
+
+        self.flowers += int(fertile_flowers)
+
+    def _roll_fungi(self, data):
+        if not self.fungi and self.fungicide == 0:
             fungi_chance = data[self.status]['fungi_chance']
             dice = random.randint(0, 100)
             if fungi_chance > dice:
                 self.fungi = True
 
-        # Roll plague chance
-        if self.status in [PLANT, MATURE] \
-        and not self.plague and self.fumigation == 0:
+    def _roll_plague(self, data):
+        if not self.plague and self.fumigation == 0:
             plague_chance = data[self.status]['plague_chance']
             dice = random.randint(0, 100)
             if plague_chance > dice:
                 self.plague = True
 
-        # Adjust plant stress
-        if self.status in [PLANT, MATURE]:
-            moisture_diff = abs(self.moisture - data['ideal_moisture'])
-            logging.debug('end_day moisture_diff: %s', moisture_diff)
-            self.stress += moisture_diff - 30  # 30 = ok moisture margin
-            if self.fungi:
-                self.stress += 25
-            if self.plague:
-                self.stress += 25
-            # Add stress if fertilized +- 20% of ideal
-            ideal_fertilizer = data[self.status]['ideal_fertilizer']
-            fertilizer_diff = abs(self.fertilizer - ideal_fertilizer)
-            if fertilizer_diff > 20:
-                self.stress += fertilizer_diff - 20
-            self.stress = min(self.stress, 100)
-            self.stress = max(self.stress, 0)
-        
-        self._update_look()
-        self.put()
+    def _calc_plant_stress(self):
+        moisture_diff = self._get_moisture_diff()
+        logging.debug('end_day moisture_diff: %s', moisture_diff)
+        self.stress += moisture_diff - 30  # 30 = ok moisture margin
+        if self.fungi:
+            self.stress += 25
+        if self.plague:
+            self.stress += 25
+        # Add stress if fertilized +- 20% of ideal
+        fertilizer_diff = self._get_fertilizer_diff()
+        if fertilizer_diff > 20:
+            self.stress += fertilizer_diff - 20
+        self.stress = min(self.stress, 100)
+        self.stress = max(self.stress, 0)
 
     # Methods that progress the status of the plant
 
@@ -273,6 +287,9 @@ class Plant(ndb.Model):
         ideal_fertilizer = data[self.status]['ideal_fertilizer']
         return abs(self.fertilizer - ideal_fertilizer)
 
+    def _get_moisture_diff(self):
+        return abs(self.moisture - data['ideal_moisture'])
+
 
     def _add_stress(self, amount):
         assert amount >= 0
@@ -313,8 +330,7 @@ class Plant(ndb.Model):
             looks.append(self._get_effect_text('fumigation', self.fumigation))
 
         if self.status in [PLANT, MATURE]:
-            ideal_fertilizer = data[self.status]['ideal_fertilizer']
-            fertilizer_diff = self.fertilizer - ideal_fertilizer
+            fertilizer_diff = self._get_fertilizer_diff()
             if fertilizer_diff < -20:
                 looks.append(TEXTS['fertilization']['lack'])
             elif fertilizer_diff > 20:
