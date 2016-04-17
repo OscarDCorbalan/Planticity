@@ -279,14 +279,10 @@ class Plant(ndb.Model):
             looks.append('The soil is swamped')
 
         if self.fungicide > 0:
-            plural = 's' if self.fungicide > 1 else ''
-            looks.append('The fungicide effect will last %s more day%s' %
-                (self.fungicide, plural))
+            looks.append(self._get_effect_text('fungicide', self.fungicide))
 
         if self.fumigation > 0:
-            plural = 's' if self.fumigation > 1 else ''
-            looks.append('The fumigation effect will last %s more day%s' %
-                (self.fumigation, plural))
+            looks.append(self._get_effect_text('fumigation', self.fumigation))
 
         if self.status in [PLANT, MATURE]:
             ideal_fertilizer = data[self.status]['ideal_fertilizer']
@@ -304,3 +300,7 @@ class Plant(ndb.Model):
             looks.append('Stress: %s%%' % self.stress)
 
         self.look = '. '.join(looks)
+
+    def _get_effect_text(self, text, num):
+        plural = 's' if num > 1 else ''
+        return TEXTS['effect_days'] % (text, num, plural)
