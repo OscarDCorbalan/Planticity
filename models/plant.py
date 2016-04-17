@@ -47,7 +47,7 @@ class Plant(ndb.Model):
     name = ndb.StringProperty(required=True)
     common_name = ndb.StringProperty(required=True)
     age = ndb.IntegerProperty(required=True, default=0)
-    size = ndb.IntegerProperty(required=True, default=0)
+    size = ndb.FloatProperty(required=True, default=0)
     status = ndb.StringProperty(required=True, default=SEED)
     # place = ndb.StringProperty() # Potted or soil...
     # light = ndb.StringProperty() #Sun, semi or shadow
@@ -140,7 +140,7 @@ class Plant(ndb.Model):
                 logging.debug('extra_growth: %s', extra_growth)
                 day_growth += extra_growth
             logging.debug('end_day growth: %s', day_growth)
-            self.size += int(day_growth)
+            self.size = round(self.size + day_growth, 1)
 
         # Roll fungi chance
         if self.status != SEED and not self.fungi and self.fungicide == 0:
@@ -265,10 +265,13 @@ class Plant(ndb.Model):
         if self.status == PLANT:
             ideal_fertilizer = data[self.status]['ideal_fertilizer']
             fertilizer_diff = self.fertilizer - ideal_fertilizer
+            logging.debug(fertilizer_diff)
             if fertilizer_diff < -20:
                 looks.append('It seems the plant needs some extra nutrients')
             elif fertilizer_diff > 20:
                 looks.append('The plant is suffering toxicity due to too much fertilizer')
+            elif fertilizer_diff >= -10 and fertilizer_diff <= 10:
+                looks.append('The fertilizer is helping the plant')
 
         looks.append('Moisture: %s%%' % self.moisture)
         looks.append('Fertilizer: %s%%' % self.fertilizer)
