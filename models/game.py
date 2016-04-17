@@ -40,7 +40,10 @@ class Game(ndb.Model):
         form.user_name = self.user.get().name
         form.game_status = self.plant.get().look
         form.game_over = self.game_over
-        form.message = message
+        if not self.game_over:
+            form.message = message
+        else:
+            form.message = 'Game already over!'
         return form
 
     def end_game(self, won=False):
