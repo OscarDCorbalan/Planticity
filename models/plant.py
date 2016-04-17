@@ -83,7 +83,7 @@ class Plant(ndb.Model):
     @classmethod
     def new_plant(cls):
         # TODO add more species, choose randomly
-        variety =  PLANT_SPECIES['Pisum Sativum']
+        variety =  PLANT_SPECIES['Tester Plantum']
         plant = Plant(name = variety['name'],
                       common_name = variety['common_name'],
                       look = "It's a %s seed" %variety['common_name'])
@@ -154,7 +154,7 @@ class Plant(ndb.Model):
             self._roll_fungi(data)
             self._roll_plague(data)
             # Adjust plant stress
-            self._calc_plant_stress()
+            self._calc_plant_stress(data)
         
         self._update_look()
         self.put()
@@ -175,7 +175,7 @@ class Plant(ndb.Model):
         # Add % of growth_rate
         day_growth = 0.01 * (100-self.stress) * data['growth_rate']
         # Add up to 33% of normal growth rate if fertilizing is ok
-        fertilizer_diff = self._get_fertilizer_diff()
+        fertilizer_diff = abs(self._get_fertilizer_diff(data))
         if fertilizer_diff < 10:
             multiplier = 0.033 * (10 - fertilizer_diff)
             extra_growth = multiplier * data['growth_rate']
@@ -185,7 +185,7 @@ class Plant(ndb.Model):
         self.size = round(self.size + day_growth, 1)
 
     def _blossom(self, data):
-        fertilizer_diff = self._get_fertilizer_diff()
+        fertilizer_diff = abs(self._get_fertilizer_diff(data))
         if fertilizer_diff < 20:
             fertilizer_diff = fertilizer_diff * 0.05 
         else:
@@ -216,16 +216,15 @@ class Plant(ndb.Model):
             if plague_chance > dice:
                 self.plague = True
 
-    def _calc_plant_stress(self):
-        moisture_diff = self._get_moisture_diff()
-        logging.debug('end_day moisture_diff: %s', moisture_diff)
+    def _calc_plant_stress(self, data):
+        moisture_diff = abs(self._get_moisture_diff(data))
         self.stress += moisture_diff - 30  # 30 = ok moisture margin
         if self.fungi:
             self.stress += 25
         if self.plague:
             self.stress += 25
         # Add stress if fertilized +- 20% of ideal
-        fertilizer_diff = self._get_fertilizer_diff()
+        fertilizer_diff = abs(self._get_fertilizer_diff(data))
         if fertilizer_diff > 20:
             self.stress += fertilizer_diff - 20
         self.stress = min(self.stress, 100)
@@ -283,13 +282,12 @@ class Plant(ndb.Model):
 
     # Helpers
 
-    def _get_fertilizer_diff(self):
+    def _get_fertilizer_diff(self, data):
         ideal_fertilizer = data[self.status]['ideal_fertilizer']
-        return abs(self.fertilizer - ideal_fertilizer)
+        return self.fertilizer - ideal_fertilizer
 
-    def _get_moisture_diff(self):
-        return abs(self.moisture - data['ideal_moisture'])
-
+    def _get_moisture_diff(self, data):
+        return self.moisture - data['ideal_moisture']
 
     def _add_stress(self, amount):
         assert amount >= 0
@@ -330,7 +328,7 @@ class Plant(ndb.Model):
             looks.append(self._get_effect_text('fumigation', self.fumigation))
 
         if self.status in [PLANT, MATURE]:
-            fertilizer_diff = self._get_fertilizer_diff()
+            fertilizer_diff = self._get_fertilizer_diff(data)
             if fertilizer_diff < -20:
                 looks.append(TEXTS['fertilization']['lack'])
             elif fertilizer_diff > 20:
