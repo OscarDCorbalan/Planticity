@@ -84,43 +84,24 @@ class Plant(ndb.Model):
             raise NotImplementedError('Action %s not recognized!' % action)
 
         # At this point it's secure to proceed without more checks
-        if action != WAIT:
-            if self.status == SEED:
-                self._interact_seed(action)
-            elif self.status == PLANTED:
-                self._interact_planted(action)
-            elif self.status == PLANT:
-                self._interact_plant(action)
-        
+        if action == WAIT:
+            logging.debug('wait')
+            pass
+        elif action == PLANT_SEED:
+            logging.debug('plant seed')
+            self._plant_seed()
+        elif action == WATER:
+            logging.debug('water')
+            self._water()
+        elif action == FUNGICIDE:
+            logging.debug('fungicide')
+            self._fungicide()
+        elif action == FUMIGATE:
+            logging.debug('fumigate')
+            self._fumigate()
+
         self.end_day()
         return self.status
-
-    def _interact_seed(self, action):
-        if action == PLANT_SEED:
-            logging.debug('_interact_seed: plant seed')
-            self._plant_seed()
-        if action == FUNGICIDE:
-            logging.debug('_interact_seed: fungicide seed')
-            self._fungicide()
-        if action == FUMIGATE:
-            logging.debug('_interact_seed: fumigate seed')
-            self._fumigate()
-
-    def _interact_planted(self, action):
-        if action == WATER:
-            logging.debug('_interact_planted: water planted')
-            self._water()
-
-    def _interact_plant(self, action):
-        if action == WATER:
-            logging.debug('_interact_plant: water plant')
-            self._water()
-        if action == FUNGICIDE:
-            logging.debug('_interact_plant: fungicide plant')
-            self._fungicide()
-        if action == FUMIGATE:
-            logging.debug('_interact_plant: fumigate plant')
-            self._fumigate()
 
     def end_day(self):
         data = PLANT_SPECIES[self.name]
