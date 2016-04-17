@@ -49,8 +49,8 @@ class Plant(ndb.Model):
     # Internal data, user can't directly see these numbers
     stress = ndb.IntegerProperty()
     moisture = ndb.IntegerProperty(required=True, default=0)
-    # % amounts present
-    # fungicide = ndb.IntegerProperty(required=True, default=True)
+    # Days of effect left
+    fungicide = ndb.IntegerProperty(required=True, default=0)
     # insecticide = ndb....
     # Infection markers
     fungi = ndb.BooleanProperty(required=True, default=False)
@@ -124,7 +124,11 @@ class Plant(ndb.Model):
     def end_day(self):
         data = PLANT_SPECIES[self.name]
 
-        self.age += 1
+        if self.status != SEED:
+            self.age += 1
+            
+        if self.fungicide > 0:
+            self.fungicide -= 1
 
         # Reduce soil moisture
         lost_water = random.randint(10, 20)
@@ -142,7 +146,7 @@ class Plant(ndb.Model):
             self.size += int(day_growth)
 
         # Roll fungi chance
-        if self.status != SEED and not self.fungi:
+        if self.status != SEED and not self.fungi and self.fungicide == 0:
             fungi_chance = data[self.status]['fungi_chance']
             dice = random.randint(0, 100)
             if fungi_chance > dice:
@@ -193,6 +197,7 @@ class Plant(ndb.Model):
     def _fungicide(self):
         logging.debug('_fungicide()')
         self.fungi = False
+        self.fungicide = 5
 
     def _fumigate(self):
         logging.debug('_fumigate()')
@@ -218,6 +223,11 @@ class Plant(ndb.Model):
                 looks.append('The plant got fungi! You should use fungicide')            
             if self.plague:
                 looks.append('The plant got a plague! You should fumigate')
+
+        if self.fungicide > 0:
+            plural = 's' if self.fungicide > 1 else ''
+            looks.append('The fungicide effect will last %s more day%s' %(
+                self.fungicide, plural))
 
         if self.moisture == 0:
             looks.append('The soil is completely dry')
