@@ -5,7 +5,8 @@ from google.appengine.ext import ndb
 
 # Load species data
 # TODO put it in memcache to speed things up
-PLANT_SPECIES = json.loads(open('plant_species.json', 'r').read())['species']
+PLANT_SPECIES = json.loads(open('models/plant_species.json', 'r').read())['species']
+TEXTS = json.loads(open('models/plant_texts.json', 'r').read())['texts']
 
 # Status
 SEED = 'seed'
@@ -253,14 +254,7 @@ class Plant(ndb.Model):
         if self.age == data['evolution']['germination']:
             looks.append('The seed just germinated')
 
-        if self.status == SEED:
-            looks.append('You have a fertile seed and is time to plant it')
-        elif self.status == PLANTED:
-            looks.append('The seed is planted, it will germinate with patience and water')
-        elif self.status == PLANT:
-            looks.append('The plant is growing')
-        elif self.status == MATURE:
-            looks.append('The plant is flowering')
+        looks.append(TEXTS['status'][self.status])
 
         if self.status in [PLANT, MATURE]:
             looks.append('It measures %s cm' % self.size)
