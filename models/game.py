@@ -1,6 +1,7 @@
 import logging
 from google.appengine.ext import ndb
 from messages import GameForm
+from models.score import Score
 from plant import Plant
 
 class Game(ndb.Model):
