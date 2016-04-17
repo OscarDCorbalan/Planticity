@@ -48,7 +48,7 @@ class Plant(ndb.Model):
     # Gives hints about moisture, stress...
     look = ndb.StringProperty()
     # Internal data, user can't directly see these numbers
-    stress = ndb.IntegerProperty()
+    stress = ndb.IntegerProperty(required=True, default=0)
     moisture = ndb.IntegerProperty(required=True, default=0)
     # Days of prevention effect left
     fungicide = ndb.IntegerProperty(required=True, default=0)
@@ -164,7 +164,7 @@ class Plant(ndb.Model):
         if self.status == PLANT:
             moisture_diff = abs(self.moisture - data['ideal_moisture'])
             logging.debug('end_day moisture_diff: %s', moisture_diff)
-            self.stress = self.stress + moisture_diff - 30
+            self.stress += moisture_diff - 30  # 30 = ok moisture margin
             if self.fungi:
                 self.stress += 25
             if self.plague:
@@ -186,7 +186,7 @@ class Plant(ndb.Model):
         if not self.status == PLANTED:
             raise ValueError('Error! To germinate, status should be planted')
         self.status = PLANT
-        self.stress = abs(
+        self.stress += abs(
             self.moisture - PLANT_SPECIES[self.name]['ideal_moisture'])
 
     # Actions that modify the plant vars
@@ -199,11 +199,18 @@ class Plant(ndb.Model):
         logging.debug('_fungicide()')
         self.fungi = False
         self.fungicide = 5
+        self._add_stress(10)
 
     def _fumigate(self):
         logging.debug('_fumigate()')
         self.plague = False
         self.fumigation = 5
+        self._add_stress(10)
+
+    # Helpers
+
+    def _add_stress(self, amount):
+        self.stress = min(self.stress + amount, 100)
 
     def _update_look(self):
         looks = []  # Append texts and finally join them in a single string
