@@ -21,7 +21,8 @@ FUMIGATE = 'fumigate'
 STATUS_ACTIONS = {
     SEED: [
         PLANT_SEED,
-        FUNGICIDE
+        FUNGICIDE,
+        FUMIGATE
     ],
     PLANTED: [
         WAIT,
@@ -49,9 +50,9 @@ class Plant(ndb.Model):
     # Internal data, user can't directly see these numbers
     stress = ndb.IntegerProperty()
     moisture = ndb.IntegerProperty(required=True, default=0)
-    # Days of effect left
+    # Days of prevention effect left
     fungicide = ndb.IntegerProperty(required=True, default=0)
-    # insecticide = ndb....
+    fumigation = ndb.IntegerProperty(required=True, default=0)
     # Infection markers
     fungi = ndb.BooleanProperty(required=True, default=False)
     plague = ndb.BooleanProperty(required=True, default=False)
@@ -126,9 +127,9 @@ class Plant(ndb.Model):
 
         if self.status != SEED:
             self.age += 1
-            
-        if self.fungicide > 0:
-            self.fungicide -= 1
+
+        self.fungicide -= 1 if self.fungicide > 0 else 0
+        self.fumigation -= 1 if self.fumigation > 0 else 0
 
         # Reduce soil moisture
         lost_water = random.randint(10, 20)
@@ -153,7 +154,7 @@ class Plant(ndb.Model):
                 self.fungi = True
 
         # Roll plague chance
-        if self.status != SEED and not self.plague:
+        if self.status != SEED and not self.plague and self.fumigation == 0:
             plague_chance = data[self.status]['plague_chance']
             dice = random.randint(0, 100)
             if plague_chance > dice:
@@ -202,6 +203,7 @@ class Plant(ndb.Model):
     def _fumigate(self):
         logging.debug('_fumigate()')
         self.plague = False
+        self.fumigation = 5
 
     def _update_look(self):
         looks = []  # Append texts and finally join them in a single string
@@ -226,8 +228,13 @@ class Plant(ndb.Model):
 
         if self.fungicide > 0:
             plural = 's' if self.fungicide > 1 else ''
-            looks.append('The fungicide effect will last %s more day%s' %(
-                self.fungicide, plural))
+            looks.append('The fungicide effect will last %s more day%s' %
+                (self.fungicide, plural))
+
+        if self.fumigation > 0:
+            plural = 's' if self.fumigation > 1 else ''
+            looks.append('The fumigation effect will last %s more day%s' %
+                (self.fumigation, plural))
 
         if self.moisture == 0:
             looks.append('The soil is completely dry')
