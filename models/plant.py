@@ -157,7 +157,6 @@ class Plant(ndb.Model):
             self._calc_plant_stress(data)
         
         self._update_look()
-        self.put()
 
     def _evolve(self, data):
         if self.age == data['evolution']['germination']:

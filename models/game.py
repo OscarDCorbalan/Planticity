@@ -1,4 +1,5 @@
 import logging
+from datetime import date
 from google.appengine.ext import ndb
 from messages import GameForm
 from models.score import Score
@@ -26,6 +27,7 @@ class Game(ndb.Model):
         plant_ref = self.plant.get()
         try:
             action_result = plant_ref.interact(action)
+            plant_ref.put()
             if plant_ref.dead:
                 self.end_game(plant_ref.yielded())
         except NotImplementedError as e:
