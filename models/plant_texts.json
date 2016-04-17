@@ -11,6 +11,6 @@
             "plague": "The plant got a plague! You should fumigate"
         },
         "plant_size": "It measures %s cm",
-        "fertilized_flowers": "%s flower%s have been fertilized",
+        "fertilized_flowers": "%s flower%s have been fertilized"
     }
 }
