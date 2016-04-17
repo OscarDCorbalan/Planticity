@@ -7,7 +7,8 @@
             "adult_size": 165,
             "evolution": {
                 "germination": 4,
-                "maturity": 60
+                "maturity": 60,
+                "yield" : 90
             },
             "ideal_moisture": 40,
             "planted": {

@@ -10,9 +10,11 @@ TEXTS = json.loads(open('models/plant_texts.json', 'r').read())['texts']
 
 # Status
 SEED = 'seed'
-PLANTED  = 'planted'
-PLANT = 'plant'
-MATURE = 'mature'  # Mature plant = flowering
+PLANTED  = 'planted'  # Seed in soil
+PLANT = 'plant'       # Growing plant
+MATURE = 'mature'     # Mature plant = flowering
+YIELD = 'yield'       # Game ended
+
 # Actions
 ACTIONS = {
     'WAIT': 'wait',
@@ -22,6 +24,7 @@ ACTIONS = {
     'FUMIGATE': 'fumigate',
     'FERTILIZE': 'fertilize'
 }
+
 # Dictionary of pairs status : [list of actions allowed]
 STATUS_ACTIONS = {
     SEED: [
@@ -49,6 +52,7 @@ STATUS_ACTIONS = {
         ACTIONS['FUMIGATE'],
         ACTIONS['FERTILIZE']
     ]
+    YIELD: []
 }
 
 class Plant(ndb.Model):
@@ -114,10 +118,10 @@ class Plant(ndb.Model):
         elif action == ACTIONS['FERTILIZE']:
             self._fertilize()
 
-        self.end_day()
+        self._end_day()
         return self.status
 
-    def end_day(self):
+    def _end_day(self):
         data = PLANT_SPECIES[self.name]
 
         if self.status != SEED:
@@ -135,6 +139,8 @@ class Plant(ndb.Model):
             self._germinate()
         if self.age == data['evolution']['maturity']:
             self._mature()
+        if self.age == data['evolution']['yield']:
+            self._yield()
 
         # Let the Nature do its miracle (cell mitosis)
         if self.status == PLANT:
@@ -216,6 +222,12 @@ class Plant(ndb.Model):
             raise ValueError(
                 'Error! To mature and start flowering, status should be plant')
         self.status = MATURE
+
+    def _yield(self):
+        if not self.status == MATURE:
+            raise ValueError(
+                'Error! To yield, the status should be mature')
+        self.status = YIELD
 
     # Actions that modify the plant vars
 
