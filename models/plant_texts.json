@@ -1,0 +1,14 @@
+{
+    "texts": {
+        "status": {
+            "seed": "You have a fertile seed and is time to plant it",
+            "planted": "The seed is planted, it will germinate soon",
+            "plant": "The plant is growing",
+            "mature": "The plant is flowering"
+        },
+        "conditions": {
+            "fungi": "The plant got fungi! You should use fungicide",
+            "plague": "The plant got a plague! You should fumigate"
+        }
+    }
+}
