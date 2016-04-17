@@ -21,6 +21,17 @@ class Game(ndb.Model):
         logging.debug('game:', game)
         return game
 
+    def take_action(self, action):
+        plant_ref = self.plant.get()
+        try:
+            action_result = plant_ref.interact(action)
+            if plant_ref.dead:
+                self.end_game(plant_ref.yielded())
+        except NotImplementedError as e:
+            raise e
+
+        return action_result
+
     def to_form(self, message):
         """Returns a GameForm representation of the Game"""
         logging.debug('self: %s -- %s', self, message)
@@ -41,5 +52,5 @@ class Game(ndb.Model):
         score = Score(user=self.user,
                       date=date.today(),
                       won=won,
-                      harvest=self.plant.get().harvested)
+                      harvest=self.plant.get().flowers)
         score.put()

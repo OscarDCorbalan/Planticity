@@ -3,7 +3,6 @@ import logging
 from protorpc import remote, messages
 from models.game import Game
 from models.messages import GameForm, MakeMoveForm, NewGameForm, StringMessage
-from models.plant import Plant
 from models.score import Score
 from models.user import User
 from utils import get_by_urlsafe
@@ -79,16 +78,15 @@ class Planticity(remote.Service):
         '''Makes a move. Returns a game state with message'''
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         logging.debug('make_move game %s', game)
+
         if game.game_over:
             return game.to_form('Game already over!')
 
-        plant = game.plant.get()
-        logging.debug('make_move action: %s', request.action)
         try:
-            action_result = plant.interact(request.action)
-            logging.debug('make_move result: %s', action_result)
+            action_result = game.take_action(request.action)
         except NotImplementedError as e:
             raise endpoints.BadRequestException(e)
+
         return game.to_form(action_result)
 
 

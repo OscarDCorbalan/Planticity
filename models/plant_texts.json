@@ -4,7 +4,8 @@
             "seed": "You have a fertile seed and is time to plant it",
             "planted": "The seed is planted, it will germinate soon",
             "plant": "The plant is growing",
-            "mature": "The plant is flowering"
+            "mature": "The plant is flowering",
+            "yield": "The plant has completed its life cycle"
         },
         "moisture": {
             "1": "The soil is completely dry",

@@ -51,7 +51,7 @@ STATUS_ACTIONS = {
         ACTIONS['FUNGICIDE'],
         ACTIONS['FUMIGATE'],
         ACTIONS['FERTILIZE']
-    ]
+    ],
     YIELD: []
 }
 
@@ -75,6 +75,7 @@ class Plant(ndb.Model):
     # Infection markers
     fungi = ndb.BooleanProperty(required=True, default=False)
     plague = ndb.BooleanProperty(required=True, default=False)
+    dead = ndb.BooleanProperty(required=True, default=False)
     # Ideas for game extension
     # place = ndb.StringProperty() # Potted, soil...
     # light = ndb.StringProperty() # Sun, semi or shadow
@@ -90,6 +91,9 @@ class Plant(ndb.Model):
         plant.put()
         logging.debug('plant', plant)
         return plant
+
+    def yielded(self):
+        return self.status == YIELD
 
     # Interaction with plant
 
@@ -160,9 +164,17 @@ class Plant(ndb.Model):
 
         # Let flowers grow!
         if self.status == MATURE:
+            fertilizer_diff = self._get_fertilizer_diff()
+            if fertilizer_diff < 20:
+                fertilizer_diff = fertilizer_diff * 0.05 
+            else:
+                fertilizer_diff = 0.4
+            fertile_factor = 1.2 - fertilizer_diff
             growth_factor = self.size / data['adult_size']
-            stress_factor = 1 - 0.01 * self.stress
-            flower_factor = growth_factor * stress_factor
+            stress_factor = 1 - 0.01 * self.stress            
+            random_factor = 0.01 * random.randint(90, 110)
+            flower_factor = growth_factor * stress_factor * random_factor
+            logging.debug('flower factors %s*%s*%s*%s=%s', fertile_factor, growth_factor, stress_factor, random_factor, flower_factor)
 
             daily_flowers = data[self.status]['flowers_day']            
             fertile_flowers = flower_factor * daily_flowers
@@ -170,14 +182,16 @@ class Plant(ndb.Model):
             self.flowers += int(fertile_flowers)
 
         # Roll fungi chance
-        if self.status != SEED and not self.fungi and self.fungicide == 0:
+        if self.status in [PLANT, MATURE] \
+        and not self.fungi and self.fungicide == 0:
             fungi_chance = data[self.status]['fungi_chance']
             dice = random.randint(0, 100)
             if fungi_chance > dice:
                 self.fungi = True
 
         # Roll plague chance
-        if self.status != SEED and not self.plague and self.fumigation == 0:
+        if self.status in [PLANT, MATURE] \
+        and not self.plague and self.fumigation == 0:
             plague_chance = data[self.status]['plague_chance']
             dice = random.randint(0, 100)
             if plague_chance > dice:
@@ -228,6 +242,7 @@ class Plant(ndb.Model):
             raise ValueError(
                 'Error! To yield, the status should be mature')
         self.status = YIELD
+        self.dead = True
 
     # Actions that modify the plant vars
 
@@ -254,12 +269,21 @@ class Plant(ndb.Model):
 
     # Helpers
 
+    def _get_fertilizer_diff(self):
+        ideal_fertilizer = data[self.status]['ideal_fertilizer']
+        return abs(self.fertilizer - ideal_fertilizer)
+
+
     def _add_stress(self, amount):
         assert amount >= 0
         self.stress = min(self.stress + amount, 100)
 
     def _update_look(self):
         data = PLANT_SPECIES[self.name]
+
+        if self.status == YIELD:
+            self.look = 'Game completed! Final yield %s' % self.flowers
+            return
 
         looks = []  # Append texts and finally join them in a single string
         looks.append('Day %s' % self.age)
