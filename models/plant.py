@@ -131,7 +131,7 @@ class Plant(ndb.Model):
         self.moisture = max(self.moisture - lost_water, 0)
 
         # Advance plant stages
-        if self.age == data['days']['germinate']:
+        if self.age == data['evolution']['germination']:
             self._germinate()
 
         # Let the Nature do its miracle (cell mitosis)
@@ -202,7 +202,7 @@ class Plant(ndb.Model):
         looks = []  # Append texts and finally join them in a single string
         looks.append('Day %s' % self.age)
 
-        if self.age == PLANT_SPECIES[self.name]['days']['germinate']:
+        if self.age == PLANT_SPECIES[self.name]['evolution']['germination']:
             looks.append('The seed just germinated')
 
         if self.status == SEED:

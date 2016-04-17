@@ -4,8 +4,8 @@
             "name": "Pisum Sativum",
             "common_name": "Pea",
             "growth_rate": 3,
-            "days": {
-                "germinate": 3,
+            "evolution": {
+                "germination": 4,
                 "maturity": 60
             },
             "ideal_moisture": 40,
