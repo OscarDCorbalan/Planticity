@@ -265,8 +265,7 @@ class Plant(ndb.Model):
 
         if self.status == MATURE:
             plural = 's' if self.flowers > 1 else ''
-            looks.append(
-                '%s flower%s have been fertilized' % (self.flowers, plural))
+            looks.append(TEXTS['fertilized_flowers'] % (self.flowers, plural))
 
         if self.moisture == 0:
             looks.append('The soil is completely dry')
