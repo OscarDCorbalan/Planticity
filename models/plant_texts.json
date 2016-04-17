@@ -10,6 +10,7 @@
             "fungi": "The plant got fungi! You should use fungicide",
             "plague": "The plant got a plague! You should fumigate"
         },
+        "germinated": "The seed just germinated",
         "plant_size": "It measures %s cm",
         "fertilized_flowers": "%s flower%s have been fertilized"
     }

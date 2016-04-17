@@ -252,7 +252,7 @@ class Plant(ndb.Model):
         looks.append('Day %s' % self.age)
 
         if self.age == data['evolution']['germination']:
-            looks.append('The seed just germinated')
+            looks.append(TEXTS['germinated'])
 
         looks.append(TEXTS['status'][self.status])
 
