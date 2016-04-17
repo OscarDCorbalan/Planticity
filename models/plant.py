@@ -11,6 +11,7 @@ PLANT_SPECIES = json.loads(open('plant_species.json', 'r').read())['species']
 SEED = 'seed'
 PLANTED  = 'planted'
 PLANT = 'plant'
+MATURE = 'mature'  # Mature plant = flowering
 # Actions
 ACTIONS = {
     'WAIT': 'wait',
@@ -33,7 +34,14 @@ STATUS_ACTIONS = {
         ACTIONS['WATER'],
         ACTIONS['FERTILIZE']
     ],
-    PLANT:[
+    PLANT: [
+        ACTIONS['WAIT'],
+        ACTIONS['WATER'],
+        ACTIONS['FUNGICIDE'],
+        ACTIONS['FUMIGATE'],
+        ACTIONS['FERTILIZE']
+    ],
+    MATURE: [
         ACTIONS['WAIT'],
         ACTIONS['WATER'],
         ACTIONS['FUNGICIDE'],
@@ -49,29 +57,27 @@ class Plant(ndb.Model):
     age = ndb.IntegerProperty(required=True, default=0)
     size = ndb.FloatProperty(required=True, default=0)
     status = ndb.StringProperty(required=True, default=SEED)
-    # place = ndb.StringProperty() # Potted or soil...
-    # light = ndb.StringProperty() #Sun, semi or shadow
-    # Gives hints about moisture, stress...
-    look = ndb.StringProperty()
-    # Internal data, user can't directly see these numbers
     stress = ndb.IntegerProperty(required=True, default=0)
     moisture = ndb.IntegerProperty(required=True, default=0)
+    flowers = ndb.IntegerProperty(required=True, default=0)
+    # Gives hints about moisture, stress...
+    look = ndb.StringProperty()
     # Amount of fertilizer in soil
     fertilizer = ndb.IntegerProperty(required=True, default=0)
-    # Days of prevention effect left
+    # Days of preventive effect left
     fungicide = ndb.IntegerProperty(required=True, default=0)
     fumigation = ndb.IntegerProperty(required=True, default=0)
     # Infection markers
     fungi = ndb.BooleanProperty(required=True, default=False)
     plague = ndb.BooleanProperty(required=True, default=False)
-    # insects = ndb.StringProperty()
+    # Ideas for game extension
+    # place = ndb.StringProperty() # Potted, soil...
+    # light = ndb.StringProperty() # Sun, semi or shadow
 
     @classmethod
     def new_plant(cls):
         # TODO add more species, choose randomly
         variety =  PLANT_SPECIES['Pisum Sativum']
-        logging.debug(PLANT_SPECIES)
-        logging.debug(variety)
         plant = Plant(name = variety['name'],
                       common_name = variety['common_name'],
                       look = "It's a %s seed" %variety['common_name'])
@@ -125,6 +131,8 @@ class Plant(ndb.Model):
         # Advance plant stages
         if self.age == data['evolution']['germination']:
             self._germinate()
+        if self.age == data['evolution']['maturity']:
+            self._mature()
 
         # Let the Nature do its miracle (cell mitosis)
         if self.status == PLANT:
@@ -142,6 +150,17 @@ class Plant(ndb.Model):
             logging.debug('end_day growth: %s', day_growth)
             self.size = round(self.size + day_growth, 1)
 
+        # Let flowers grow!
+        if self.status == MATURE:
+            growth_factor = self.size / data['adult_size']
+            stress_factor = 1 - 0.01 * self.stress
+            flower_factor = growth_factor * stress_factor
+
+            daily_flowers = data[self.status]['flowers_day']            
+            fertile_flowers = flower_factor * daily_flowers
+
+            self.flowers += int(fertile_flowers)
+
         # Roll fungi chance
         if self.status != SEED and not self.fungi and self.fungicide == 0:
             fungi_chance = data[self.status]['fungi_chance']
@@ -157,7 +176,7 @@ class Plant(ndb.Model):
                 self.plague = True
 
         # Adjust plant stress
-        if self.status == PLANT:
+        if self.status in [PLANT, MATURE]:
             moisture_diff = abs(self.moisture - data['ideal_moisture'])
             logging.debug('end_day moisture_diff: %s', moisture_diff)
             self.stress += moisture_diff - 30  # 30 = ok moisture margin
@@ -190,7 +209,14 @@ class Plant(ndb.Model):
         self.stress += abs(
             self.moisture - PLANT_SPECIES[self.name]['ideal_moisture'])
 
+    def _mature(self):
+        if not self.status == PLANT:
+            raise ValueError(
+                'Error! To mature and start flowering, status should be plant')
+        self.status = MATURE
+
     # Actions that modify the plant vars
+
     def _water(self):
         retained_water = random.randint(30, 70)        
         logging.debug('_water cur:%s ret:%s', self.moisture, retained_water)
@@ -233,6 +259,20 @@ class Plant(ndb.Model):
             looks.append('The seed is planted, it will germinate with patience and water')
         elif self.status == PLANT:
             looks.append('The plant is growing')
+        elif self.status == MATURE:
+            looks.append('The plant is flowering')
+
+        if self.status in [PLANT, MATURE]:
+            looks.append('It measures %s cm' % self.size)
+            if self.fungi:
+                looks.append('The plant got fungi! You should use fungicide')
+            if self.plague:
+                looks.append('The plant got a plague! You should fumigate')
+
+        if self.status == MATURE:
+            plural = 's' if self.flowers > 1 else ''
+            looks.append(
+                '%s flower%s have been fertilized' % (self.flowers, plural))
 
         if self.moisture == 0:
             looks.append('The soil is completely dry')
@@ -245,13 +285,6 @@ class Plant(ndb.Model):
         else:
             looks.append('The soil is swamped')
 
-        if self.status in [PLANT]:  #, MATURE]:
-            looks.append('It measures %s cm' % self.size)
-            if self.fungi:
-                looks.append('The plant got fungi! You should use fungicide')            
-            if self.plague:
-                looks.append('The plant got a plague! You should fumigate')
-
         if self.fungicide > 0:
             plural = 's' if self.fungicide > 1 else ''
             looks.append('The fungicide effect will last %s more day%s' %
@@ -262,7 +295,7 @@ class Plant(ndb.Model):
             looks.append('The fumigation effect will last %s more day%s' %
                 (self.fumigation, plural))
 
-        if self.status == PLANT:
+        if self.status in [PLANT, MATURE]:
             ideal_fertilizer = data[self.status]['ideal_fertilizer']
             fertilizer_diff = self.fertilizer - ideal_fertilizer
             if fertilizer_diff < -20:
@@ -274,7 +307,7 @@ class Plant(ndb.Model):
 
         looks.append('Moisture: %s%%' % self.moisture)
         looks.append('Fertilizer: %s%%' % self.fertilizer)
-        if self.status != SEED and self.status != PLANTED:
+        if self.status not in [SEED, PLANTED]:
             looks.append('Stress: %s%%' % self.stress)
 
         self.look = '. '.join(looks)

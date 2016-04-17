@@ -4,6 +4,7 @@
             "name": "Pisum Sativum",
             "common_name": "Pea",
             "growth_rate": 3,
+            "adult_size": 165,
             "evolution": {
                 "germination": 4,
                 "maturity": 60
@@ -14,10 +15,15 @@
                 "plague_chance": 30
             },
             "plant": {
-                "fertilize": false,
                 "fungi_chance": 1,
                 "plague_chance": 7,
                 "ideal_fertilizer": 25
+            },
+            "mature": {
+                "flowers_day": 10,
+                "fungi_chance": 2,
+                "plague_chance": 10,
+                "ideal_fertilizer": 40
             }
         }
     }
