@@ -134,8 +134,8 @@ class Plant(ndb.Model):
             ideal_fertilizer = data[self.status]['ideal_fertilizer']
             fertilizer_diff = abs(self.fertilizer - ideal_fertilizer)
             # Add up to 33% of normal growth rate if fertilizing is ok
-            if fertilizer_diff <= 10:
-                multiplier = 0.033 * fertilizer_diff
+            if fertilizer_diff < 10:
+                multiplier = 0.033 * (10 - fertilizer_diff)
                 extra_growth = multiplier * data['growth_rate']
                 logging.debug('extra_growth: %s', extra_growth)
                 day_growth += extra_growth
@@ -265,12 +265,11 @@ class Plant(ndb.Model):
         if self.status == PLANT:
             ideal_fertilizer = data[self.status]['ideal_fertilizer']
             fertilizer_diff = self.fertilizer - ideal_fertilizer
-            logging.debug(fertilizer_diff)
             if fertilizer_diff < -20:
                 looks.append('It seems the plant needs some extra nutrients')
             elif fertilizer_diff > 20:
                 looks.append('The plant is suffering toxicity due to too much fertilizer')
-            elif fertilizer_diff >= -10 and fertilizer_diff <= 10:
+            elif fertilizer_diff > -10 and fertilizer_diff < 10:
                 looks.append('The fertilizer is helping the plant')
 
         looks.append('Moisture: %s%%' % self.moisture)
