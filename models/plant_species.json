@@ -1,5 +1,32 @@
 {
     "species": {
+        "Tester Plantum": {
+            "name": "Tester Plantum",
+            "common_name": "Subject TP172",
+            "growth_rate": 10,
+            "adult_size": 150,
+            "evolution": {
+                "germination": 3,
+                "maturity": 10,
+                "yield" : 15
+            },
+            "ideal_moisture": 20,
+            "planted": {
+                "fungi_chance": 100,
+                "plague_chance": 100
+            },
+            "plant": {
+                "fungi_chance": 0,
+                "plague_chance": 0,
+                "ideal_fertilizer": 50
+            },
+            "mature": {
+                "flowers_day": 50,
+                "fungi_chance": 0,
+                "plague_chance": 0,
+                "ideal_fertilizer": 90
+            }
+        },
         "Pisum Sativum": {
             "name": "Pisum Sativum",
             "common_name": "Pea",
