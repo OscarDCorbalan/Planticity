@@ -3,7 +3,6 @@ import logging
 from protorpc import remote, messages
 from models.game import Game
 from models.messages import GameForm, MakeMoveForm, NewGameForm, StringMessage
-from models.score import Score
 from models.user import User
 from utils import get_by_urlsafe
 
