@@ -12,27 +12,29 @@ SEED = 'seed'
 PLANTED  = 'planted'
 PLANT = 'plant'
 # Actions
-WAIT = 'wait'
-PLANT_SEED = 'plant seed'
-WATER = 'water'
-FUNGICIDE = 'fungicide'
-FUMIGATE = 'fumigate'
-# Dictionary of status:[list of possible actions for this status]
+ACTIONS = {
+    'WAIT': 'wait',
+    'PLANT_SEED': 'plant seed',
+    'WATER': 'water',
+    'FUNGICIDE': 'fungicide',
+    'FUMIGATE': 'fumigate'
+}
+# Dictionary of pairs status : [list of actions allowed]
 STATUS_ACTIONS = {
     SEED: [
-        PLANT_SEED,
-        FUNGICIDE,
-        FUMIGATE
+        ACTIONS['PLANT_SEED'],
+        ACTIONS['FUNGICIDE'],
+        ACTIONS['FUMIGATE']
     ],
     PLANTED: [
-        WAIT,
-        WATER
+        ACTIONS['WAIT'],
+        ACTIONS['WATER']
     ],
     PLANT:[
-        WAIT,
-        WATER,
-        FUNGICIDE,
-        FUMIGATE
+        ACTIONS['WAIT'],
+        ACTIONS['WATER'],
+        ACTIONS['FUNGICIDE'],
+        ACTIONS['FUMIGATE']
     ]
 }
 
@@ -84,20 +86,16 @@ class Plant(ndb.Model):
             raise NotImplementedError('Action %s not recognized!' % action)
 
         # At this point it's secure to proceed without more checks
-        if action == WAIT:
-            logging.debug('wait')
+        logging.debug('executing action')
+        if action == ACTIONS['WAIT']:
             pass
-        elif action == PLANT_SEED:
-            logging.debug('plant seed')
+        elif action == ACTIONS['PLANT_SEED']:
             self._plant_seed()
-        elif action == WATER:
-            logging.debug('water')
+        elif action == ACTIONS['WATER']:
             self._water()
-        elif action == FUNGICIDE:
-            logging.debug('fungicide')
+        elif action == ACTIONS['FUNGICIDE']:
             self._fungicide()
-        elif action == FUMIGATE:
-            logging.debug('fumigate')
+        elif action == ACTIONS['FUMIGATE']:
             self._fumigate()
 
         self.end_day()
