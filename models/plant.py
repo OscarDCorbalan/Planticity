@@ -257,11 +257,11 @@ class Plant(ndb.Model):
         looks.append(TEXTS['status'][self.status])
 
         if self.status in [PLANT, MATURE]:
-            looks.append('It measures %s cm' % self.size)
+            looks.append(TEXTS['plant_size'] % self.size)
             if self.fungi:
-                looks.append('The plant got fungi! You should use fungicide')
+                looks.append(TEXTS['conditions']['fungi'])
             if self.plague:
-                looks.append('The plant got a plague! You should fumigate')
+                looks.append(TEXTS['conditions']['plague'])
 
         if self.status == MATURE:
             plural = 's' if self.flowers > 1 else ''
