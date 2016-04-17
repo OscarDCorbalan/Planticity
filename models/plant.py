@@ -120,10 +120,11 @@ class Plant(ndb.Model):
     def end_day(self):
         data = PLANT_SPECIES[self.name]
 
-        self.age += 1 if self.status != SEED else 0
-        self.fungicide -= 1 if self.fungicide > 0 else 0
-        self.fumigation -= 1 if self.fumigation > 0 else 0
-        self.fertilizer -= 1 if self.fertilizer > 0 else 0
+        if self.status != SEED:
+            self.age += 1
+            self.fungicide -= 1 if self.fungicide > 0 else 0
+            self.fumigation -= 1 if self.fumigation > 0 else 0
+            self.fertilizer -= 1 if self.fertilizer > 0 else 0
 
         # Reduce soil moisture
         lost_water = random.randint(10, 20)
