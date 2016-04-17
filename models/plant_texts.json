@@ -10,6 +10,11 @@
             "fungi": "The plant got fungi! You should use fungicide",
             "plague": "The plant got a plague! You should fumigate"
         },
+        "fertilization" :{
+            "lack": "It seems the plant could use extra nutrients",
+            "toxic": "The plant is suffering fertilization toxicity",
+            "ok": "The fertilizer is helping the plant"
+        },
         "effect_days": "The %s effect will last %s more day%s",
         "germinated": "The seed just germinated",
         "plant_size": "It measures %s cm",

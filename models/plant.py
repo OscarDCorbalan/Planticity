@@ -288,11 +288,11 @@ class Plant(ndb.Model):
             ideal_fertilizer = data[self.status]['ideal_fertilizer']
             fertilizer_diff = self.fertilizer - ideal_fertilizer
             if fertilizer_diff < -20:
-                looks.append('It seems the plant needs some extra nutrients')
+                looks.append(TEXTS['fertilization']['lack'])
             elif fertilizer_diff > 20:
-                looks.append('The plant is suffering toxicity due to too much fertilizer')
+                looks.append(TEXTS['fertilization']['toxic'])
             elif fertilizer_diff > -10 and fertilizer_diff < 10:
-                looks.append('The fertilizer is helping the plant')
+                looks.append(TEXTS['fertilization']['ok'])
 
         looks.append('Moisture: %s%%' % self.moisture)
         looks.append('Fertilizer: %s%%' % self.fertilizer)
