@@ -267,16 +267,7 @@ class Plant(ndb.Model):
             plural = 's' if self.flowers > 1 else ''
             looks.append(TEXTS['fertilized_flowers'] % (self.flowers, plural))
 
-        if self.moisture == 0:
-            looks.append('The soil is completely dry')
-        elif self.moisture < 25:
-            looks.append('The soil looks quite dry')
-        elif self.moisture < 50:
-            looks.append('The soil is moist')
-        elif self.moisture < 75:
-            looks.append('The soil is wet')
-        else:
-            looks.append('The soil is swamped')
+        looks.append(self._get_moisture_text())
 
         if self.fungicide > 0:
             looks.append(self._get_effect_text('fungicide', self.fungicide))
@@ -300,6 +291,20 @@ class Plant(ndb.Model):
             looks.append('Stress: %s%%' % self.stress)
 
         self.look = '. '.join(looks)
+
+    def _get_moisture_text(self):
+        moisture_index = '0'
+        if self.moisture == 0:
+            moisture_index = '1'
+        elif self.moisture < 25:
+            moisture_index = '2'
+        elif self.moisture < 50:
+            moisture_index = '3'
+        elif self.moisture < 75:
+            moisture_index = '4'
+        else:
+            moisture_index = '5'
+        return TEXTS['moisture'][moisture_index]
 
     def _get_effect_text(self, text, num):
         plural = 's' if num > 1 else ''

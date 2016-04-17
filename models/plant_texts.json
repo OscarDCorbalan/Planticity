@@ -6,6 +6,13 @@
             "plant": "The plant is growing",
             "mature": "The plant is flowering"
         },
+        "moisture": {
+            "1": "The soil is completely dry",
+            "2": "The soil looks quite dry",
+            "3": "The soil is moist",
+            "4": "The soil is wet",
+            "5": "The soil is swamped"
+        },
         "conditions": {
             "fungi": "The plant got fungi! You should use fungicide",
             "plague": "The plant got a plague! You should fumigate"
