@@ -14,16 +14,30 @@ class Game(ndb.Model):
 
     @classmethod
     def new_game(cls, user):
-        """Creates and returns a new game"""
+        """Creates and returns a new game.
 
-        game = Game(user=user,
+        Args:
+            user: User Model that owns (parent of) the game.
+
+        Returns:
+            A new game Model."""
+
+        game = Game(user = user,
                     plant = Plant.new_plant().key,
-                    game_over=False)
+                    game_over = False)
         game.put()
-        logging.debug('game:', game)
+        logging.debug('new_game:', game)
         return game
 
     def take_action(self, action):
+        """Modifies the game state by performing an action.
+
+        Args:
+            action: String representing the action performed by the user.
+
+        Returns:
+            A string explaining the result of the action."""
+
         plant_ref = self.plant.get()
         try:
             action_result = plant_ref.interact(action)
@@ -36,7 +50,15 @@ class Game(ndb.Model):
         return action_result
 
     def to_form(self, message):
-        """Returns a GameForm representation of the Game"""
+        """Returns a GameForm representation of the Game,
+
+        Args:
+            message: Game info to append on the returned
+            GameForm object.
+
+        Returns:
+            A GameForm object which contains the message parameter in its
+            .message field"""
         logging.debug('self: %s -- %s', self, message)
         form = GameForm()
         form.urlsafe_key = self.key.urlsafe()
@@ -50,8 +72,10 @@ class Game(ndb.Model):
         return form
 
     def end_game(self, won=False):
-        """Ends the game - if won is True, the player won. - if won is False,
-        the player lost."""
+        """Ends the game.
+
+        Args:
+            won: if won is True, the player won, else the player lost."""
         self.game_over = True
         self.put()
         # Add the game to the score 'board'
