@@ -6,7 +6,9 @@ from google.appengine.ext import ndb
 # Load species data
 # TODO put it in memcache to speed things up
 PLANT_SPECIES = json.loads(open('json/plant_species.json', 'r').read())['species']
+"""Object: Contains the species info contained in plant_species.json."""
 TEXTS = json.loads(open('json/plant_texts.json', 'r').read())['texts']
+"""Object: Contains the text leterals contained in plant_texts.json."""
 
 # Status
 SEED = 'seed'
@@ -56,7 +58,7 @@ STATUS_ACTIONS = {
 }
 
 class Plant(ndb.Model):
-    """Plant data"""
+    """Represents a Plant object as an ndb Model"""
     name = ndb.StringProperty(required=True)
     common_name = ndb.StringProperty(required=True)
     age = ndb.IntegerProperty(required=True, default=0)
@@ -76,14 +78,19 @@ class Plant(ndb.Model):
     fungi = ndb.BooleanProperty(required=True, default=False)
     plague = ndb.BooleanProperty(required=True, default=False)
     dead = ndb.BooleanProperty(required=True, default=False)
+
     # Ideas for game extension
-    # place = ndb.StringProperty() # Potted, soil...
+    # place = ndb.StringProperty() # Potted, soil, greenhouse...
     # light = ndb.StringProperty() # Sun, semi or shadow
 
     @classmethod
     def new_plant(cls):
-        # TODO add more species, choose randomly
-        variety =  PLANT_SPECIES['Tester Plantum']
+        """Creates and returns a new Plant.
+
+        Returns:
+            A new Plant Model."""
+        # TODO choose randomly
+        variety =  PLANT_SPECIES['Pisum Sativum']
         plant = Plant(name = variety['name'],
                       common_name = variety['common_name'],
                       look = "It's a %s seed" %variety['common_name'])
@@ -92,12 +99,25 @@ class Plant(ndb.Model):
         logging.debug('plant', plant)
         return plant
 
+
     def yielded(self):
         return self.status == YIELD
 
     # Interaction with plant
 
     def interact(self, action):
+        """Modifies the Plant state by performing an action.
+
+        Args:
+            action: String representing the action to perform.
+
+        Returns:
+            A string explaining the result of the action.
+
+        Raises:
+            NotImplementedError: When the action does not exist or is not
+                allowed in the current status."""
+
         logging.debug('do %s in status: %s', action, self.status)
 
         possible_actions = STATUS_ACTIONS[self.status]
@@ -106,8 +126,7 @@ class Plant(ndb.Model):
         if not action in possible_actions:
             raise NotImplementedError('Action %s not recognized!' % action)
 
-        # At this point it's secure to proceed without more checks
-        logging.debug('executing action')
+        # At this point the action is safe; no safety checks needed
         if action == ACTIONS['WAIT']:
             logging.debug('passing')
             pass
@@ -126,6 +145,19 @@ class Plant(ndb.Model):
         return self.status
 
     def _end_day(self):
+        """Modifies the Plant variables, ending the current turn.
+
+        Actions performed, in order:
+            -(when not a seed) Add 1 to age
+            -(when not a seed) Subtract 1 to days left of fungicide, fumigation
+                and fertilizer
+            -Evolve the plant if conditions are met
+            -Reduce/consume/evaporate water in soil
+            -(when not mature) Make the plant taller
+            -(when blossoming) Grow new flowers
+            -(when not a seed) Roll chances against bad things
+            -(when not a seed) Recalculate plant stress
+            -Stringify the current plant status/look."""
         data = PLANT_SPECIES[self.name]
 
         if self.status != SEED:
@@ -159,6 +191,7 @@ class Plant(ndb.Model):
         self._update_look()
 
     def _evolve(self, data):
+        """Evolves the plant status if conditions are met."""
         if self.age == data['evolution']['germination']:
             self._germinate()
         elif self.age == data['evolution']['maturity']:
@@ -167,41 +200,59 @@ class Plant(ndb.Model):
             self._yield()
 
     def _consume_water(self):
+        """Randomly reduces moisture by 10-20%."""
         lost_water = random.randint(10, 20)
         self.moisture = max(self.moisture - lost_water, 0)
 
     def _grow(self, data):
-        # Add % of growth_rate
+        """Makes the plant bigger.
+
+        Args:
+            data: This species data extracted from plant_species.json"""
+        # Reduce normal growth rate by stress %
         day_growth = 0.01 * (100-self.stress) * data['growth_rate']
-        # Add up to 33% of normal growth rate if fertilizing is ok
+        
+        # If fertilizer is +- 10% of ideal value, bump it up to 33% (if diff=0)
         fertilizer_diff = abs(self._get_fertilizer_diff(data))
         if fertilizer_diff < 10:
             multiplier = 0.033 * (10 - fertilizer_diff)
-            extra_growth = multiplier * data['growth_rate']
-            logging.debug('extra_growth: %s', extra_growth)
-            day_growth += extra_growth
+            day_growth = multiplier * data['growth_rate']
+
         logging.debug('end_day growth: %s', day_growth)
         self.size = round(self.size + day_growth, 1)
 
     def _blossom(self, data):
+        """Create new flowers.
+
+        Args:
+            data: This species data extracted from plant_species.json"""
+        # If fertilizer is +- 20% of ideal value, bump normal flower rate up to
+        # 20% (if diff=0)
         fertilizer_diff = abs(self._get_fertilizer_diff(data))
         if fertilizer_diff < 20:
             fertilizer_diff = fertilizer_diff * 0.05 
         else:
-            fertilizer_diff = 0.4
+            fertilizer_diff = 1.2
         fertile_factor = 1.2 - fertilizer_diff
-        growth_factor = self.size / data['adult_size']
-        stress_factor = 1 - 0.01 * self.stress            
-        random_factor = 0.01 * random.randint(90, 110)
-        flower_factor = growth_factor * stress_factor * random_factor
-        logging.debug('flower factors %s*%s*%s*%s=%s', fertile_factor, growth_factor, stress_factor, random_factor, flower_factor)
 
+        # Factor in plant size by direct correlation
+        growth_factor = self.size / data['adult_size']
+        # Reduce produced flowers by stress %
+        stress_factor = 1 - 0.01 * self.stress            
+        # Add a bit of salt to avoid repeating outputs
+        random_factor = 0.01 * random.randint(90, 110)
+        # ...and calucate
+        flower_factor = growth_factor * stress_factor * random_factor
         daily_flowers = data[self.status]['flowers_day']            
         fertile_flowers = flower_factor * daily_flowers
 
         self.flowers += int(fertile_flowers)
 
     def _roll_fungi(self, data):
+        """Rolls against this species chance to get fungi.
+
+        Args:
+            data: This species data extracted from plant_species.json"""
         if not self.fungi and self.fungicide == 0:
             fungi_chance = data[self.status]['fungi_chance']
             dice = random.randint(0, 100)
@@ -209,6 +260,10 @@ class Plant(ndb.Model):
                 self.fungi = True
 
     def _roll_plague(self, data):
+        """Rolls against this species chance to get a plague.
+
+        Args:
+            data: This species data extracted from plant_species.json"""
         if not self.plague and self.fumigation == 0:
             plague_chance = data[self.status]['plague_chance']
             dice = random.randint(0, 100)
@@ -216,20 +271,25 @@ class Plant(ndb.Model):
                 self.plague = True
 
     def _calc_plant_stress(self, data):
+        """Calculate the current plant stress.
+
+        Args:
+            data: This species data extracted from plant_species.json"""
+        # Add stress if plant is outside an acceptable/ok moisture margin.
         moisture_diff = abs(self._get_moisture_diff(data))
         self.stress += moisture_diff - 30  # 30 = ok moisture margin
-        if self.fungi:
+        # Add stress if the plant has a plague or fungi
+        if self.fungi or self.plague:
             self.stress += 25
-        if self.plague:
-            self.stress += 25
-        # Add stress if fertilized +- 20% of ideal
+        # Add stress if fertilizer value is outside +- 20% of ideal
         fertilizer_diff = abs(self._get_fertilizer_diff(data))
         if fertilizer_diff > 20:
             self.stress += fertilizer_diff - 20
+
         self.stress = min(self.stress, 100)
         self.stress = max(self.stress, 0)
 
-    # Methods that progress the status of the plant
+    # Simple helpers methods that progress the status of the plant
 
     def _plant_seed(self):
         if self.status != SEED:
@@ -256,26 +316,32 @@ class Plant(ndb.Model):
         self.status = YIELD
         self.dead = True
 
-    # Actions that modify the plant vars
+    # Methods that perform actions
 
     def _water(self):
+        """Retains 30-70 percent of current moisture."""
         retained_water = random.randint(30, 70)        
         logging.debug('_water cur:%s ret:%s', self.moisture, retained_water)
         self.moisture = min(self.moisture + retained_water, 100)
 
     def _fungicide(self):
-        logging.debug('_fungicide()')
+        """Removes fungi, if present, and adds protection for 5 days. Also adds
+        some stress."""
+        logging.debug('_fumigate()')
         self.fungi = False
         self.fungicide = 5
         self._add_stress(10)
 
     def _fumigate(self):
+        """Removes plague, if present, and adds protection for 5 days. Also adds
+        some stress"""
         logging.debug('_fumigate()')
         self.plague = False
         self.fumigation = 5
         self._add_stress(10)
 
     def _fertilize(self):
+        """Adds 10 percet nutriets to soil."""
         logging.debug('_fertilize()')
         self.fertilizer = min(100, self.fertilizer + 10)
 
@@ -293,6 +359,8 @@ class Plant(ndb.Model):
         self.stress = min(self.stress + amount, 100)
 
     def _update_look(self):
+        """Builds a text, for the user to read, that explains the current plant
+        status."""
         data = PLANT_SPECIES[self.name]
 
         if self.status == YIELD:
