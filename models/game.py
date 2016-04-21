@@ -6,7 +6,7 @@ from models.score import Score
 from plant import Plant
 
 class Game(ndb.Model):
-    """Game object"""
+    """Represents a Game object as an ndb Model"""
     # TODO: history = ndb.????
     game_over = ndb.BooleanProperty(required=True, default=False)
     user = ndb.KeyProperty(required=True, kind='User')
