@@ -5,8 +5,8 @@ from google.appengine.ext import ndb
 
 # Load species data
 # TODO put it in memcache to speed things up
-PLANT_SPECIES = json.loads(open('models/plant_species.json', 'r').read())['species']
-TEXTS = json.loads(open('models/plant_texts.json', 'r').read())['texts']
+PLANT_SPECIES = json.loads(open('json/plant_species.json', 'r').read())['species']
+TEXTS = json.loads(open('json/plant_texts.json', 'r').read())['texts']
 
 # Status
 SEED = 'seed'
