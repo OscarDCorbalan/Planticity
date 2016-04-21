@@ -2,6 +2,6 @@ from google.appengine.ext import ndb
 
 
 class User(ndb.Model):
-    """User profile"""
+    """Represents a User as an ndb Model"""
     name = ndb.StringProperty(required=True)
     email =ndb.StringProperty()
