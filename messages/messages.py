@@ -17,6 +17,11 @@ class GameForm(messages.Message):
     game_over = messages.BooleanField(3, required=True)
     message = messages.StringField(4, required=True)
     user_name = messages.StringField(5, required=True)
+    
+    
+class GameForms(messages.Message):
+    """Return multiple GameForm"""
+    items = messages.MessageField(GameForm, 1, repeated=True)
 
 
 class ScoreForm(messages.Message):

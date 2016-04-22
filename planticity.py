@@ -1,6 +1,8 @@
 import endpoints
 import logging
-from messages.messages import GameForm, MakeMoveForm, NewGameForm, StringMessage
+from google.appengine.ext import ndb
+from messages.messages import (GameForm, GameForms, MakeMoveForm, NewGameForm,
+    StringMessage)
 from models.game import Game
 from models.user import User
 from protorpc import remote, messages
@@ -55,7 +57,7 @@ class Planticity(remote.Service):
 
     @endpoints.method(request_message=GET_GAME_REQUEST,
                       response_message=GameForm,
-                      path='game/{urlsafe_game_key}',
+                      path='games/game/{urlsafe_game_key}',
                       name='get_game',
                       http_method='GET')
     def get_game(self, request):
@@ -67,6 +69,18 @@ class Planticity(remote.Service):
         else:
             raise endpoints.NotFoundException('Game not found!')
 
+    @endpoints.method(response_message=GameForms,
+                      path='games',
+                      name='get_games',
+                      http_method='GET')
+    def get_games(self, request):
+        '''Return all the games created by the user.'''
+        user_email = endpoints.get_current_user().email()
+        user_key = User.query(User.email == user_email).get().key
+        games = Game.query(Game.user == user_key)
+        logging.debug('Number of games retrieved: %s', games.count())
+        game_forms = GameForms(items=[game.to_form() for game in games])
+        return game_forms
 
     @endpoints.method(request_message=MAKE_MOVE_REQUEST,
                       response_message=GameForm,

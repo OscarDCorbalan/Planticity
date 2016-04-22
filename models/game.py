@@ -1,7 +1,7 @@
 import logging
 from datetime import date
 from google.appengine.ext import ndb
-from messages import GameForm
+from messages.messages import GameForm
 from models.score import Score
 from plant import Plant
 
@@ -49,7 +49,7 @@ class Game(ndb.Model):
 
         return action_result
 
-    def to_form(self, message):
+    def to_form(self, message=None):
         """Returns a GameForm representation of the Game,
 
         Args:
@@ -59,15 +59,17 @@ class Game(ndb.Model):
         Returns:
             A GameForm object which contains the message parameter in its
             .message field"""
-        logging.debug('self: %s -- %s', self, message)
+        # logging.debug('self: %s -- %s', self, message)
         form = GameForm()
         form.urlsafe_key = self.key.urlsafe()
         form.user_name = self.user.get().name
         form.game_status = self.plant.get().look
         form.game_over = self.game_over
-        if not self.game_over:
+        if not self.game_over and message:
             form.message = message
-        else:
+        elif not self.game_over and not message:
+            form.message = 'Your turn!'
+        elif self.game_over:
             form.message = 'Game already over!'
         return form
 
