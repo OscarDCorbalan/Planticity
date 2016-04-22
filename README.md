@@ -8,18 +8,18 @@ The engine is an API with endpoints that allows anyone to develop a front-end fo
  
 ### Purpose of the game
 
-TODO - planting seeds and growing plants to get harvests
+TODO - write: planting seeds and growing plants to get harvests
 
 ### Scores
 
-TODO - score is based on harvest
+DONE - score is based on harvest
 
 ### Requirements
 
 Some Udacity project requirements :
-  * Define what a "score" for each game will be and keep this data in database.
+  * ~~Define what a "score" for each game will be and keep this data in database.~~
   * A well engineered backend; extensible.
-  * Each endpoint uses an appropriate HTTP Method.
+  * ~~Each endpoint uses an appropriate HTTP Method.~~
   * Get user games:returns all of a User's active games. <todo what if the player prevented concurrent games? Maybe this should be a list of all games (active or not) that the user is related to>
   * Cancel game: this endpoint allows users to cancel a game in progress. Ensure that Users are not permitted to remove *completed* games.
   * Get high scores: generate a list of high scores in descending order, a leader-board! Accept an optional parameter `number_of_results` that limits the number of results returned.    
