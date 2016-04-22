@@ -55,22 +55,8 @@ class Planticity(remote.Service):
         # taskqueue.add(url='/tasks/cache_plant_status')
         return game.to_form('Good luck playing Planticity!')
 
-    @endpoints.method(request_message=GET_GAME_REQUEST,
-                      response_message=GameForm,
-                      path='games/game/{urlsafe_game_key}',
-                      name='get_game',
-                      http_method='GET')
-    def get_game(self, request):
-        '''Return the current game state.'''
-        game = get_by_urlsafe(request.urlsafe_game_key, Game)
-        if game:
-            # TODO give detail about the plant status
-            return game.to_form('Time to take an action!')
-        else:
-            raise endpoints.NotFoundException('Game not found!')
-
     @endpoints.method(response_message=GameForms,
-                      path='games',
+                      path='game',
                       name='get_games',
                       http_method='GET')
     def get_games(self, request):
@@ -81,6 +67,20 @@ class Planticity(remote.Service):
         logging.debug('Number of games retrieved: %s', games.count())
         game_forms = GameForms(items=[game.to_form() for game in games])
         return game_forms
+
+    @endpoints.method(request_message=GET_GAME_REQUEST,
+                      response_message=GameForm,
+                      path='game/{urlsafe_game_key}',
+                      name='get_game',
+                      http_method='GET')
+    def get_game(self, request):
+        '''Return the current game state.'''
+        game = get_by_urlsafe(request.urlsafe_game_key, Game)
+        if game:
+            # TODO give detail about the plant status
+            return game.to_form('Time to take an action!')
+        else:
+            raise endpoints.NotFoundException('Game not found!')
 
     @endpoints.method(request_message=MAKE_MOVE_REQUEST,
                       response_message=GameForm,
