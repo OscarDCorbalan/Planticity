@@ -36,6 +36,7 @@ class Planticity(remote.Service):
         return StringMessage(message='User {} created!'.format(
                 request.user_name))
 
+
     @endpoints.method(request_message=NEW_GAME_REQUEST,
                       response_message=GameForm,
                       path='game',
@@ -56,7 +57,7 @@ class Planticity(remote.Service):
         return game.to_form('Good luck playing Planticity!')
 
     @endpoints.method(response_message=GameForms,
-                      path='game',
+                      path='games',
                       name='get_games',
                       http_method='GET')
     def get_games(self, request):
@@ -70,7 +71,7 @@ class Planticity(remote.Service):
 
     @endpoints.method(request_message=GET_GAME_REQUEST,
                       response_message=GameForm,
-                      path='game/{urlsafe_game_key}',
+                      path='games/{urlsafe_game_key}',
                       name='get_game',
                       http_method='GET')
     def get_game(self, request):
@@ -84,7 +85,7 @@ class Planticity(remote.Service):
 
     @endpoints.method(request_message=MAKE_MOVE_REQUEST,
                       response_message=GameForm,
-                      path='game/{urlsafe_game_key}',
+                      path='games/{urlsafe_game_key}',
                       name='make_move',
                       http_method='PUT')
     def make_move(self, request):
@@ -101,6 +102,5 @@ class Planticity(remote.Service):
             raise endpoints.BadRequestException(e)
 
         return game.to_form(action_result)
-
 
 api = endpoints.api_server([Planticity])
