@@ -20,7 +20,7 @@ Some Udacity project requirements :
   * ~~Define what a "score" for each game will be and keep this data in database.~~
   * A well engineered backend; extensible.
   * ~~Each endpoint uses an appropriate HTTP Method.~~
-  * Get user games:returns all of a User's active games. <todo what if the player prevented concurrent games? Maybe this should be a list of all games (active or not) that the user is related to>
+  * ~~Get user games:returns all of a User's active games.~~
   * Cancel game: this endpoint allows users to cancel a game in progress. Ensure that Users are not permitted to remove *completed* games.
   * Get high scores: generate a list of high scores in descending order, a leader-board! Accept an optional parameter `number_of_results` that limits the number of results returned.    
   * Get user rankings: method for ranking the performance of each player. The results should include each Player's name and the 'performance' indicator (eg. win/loss ratio).
