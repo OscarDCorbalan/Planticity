@@ -22,7 +22,10 @@ _In the Developing Scalable Apps with Python course you learned how to write pla
 
 ### Task 1: Explore the Architecture - _DONE_
 
-Get the skeleton application up and running. Read through the code and documentation, and test the endpoints with API explorer. Make sure you understand how different entities are created, how they work together, and the overall flow. Make sure to take a look at the admin Datastore viewer to check out the various entities.
+Get the skeleton application up and running.
+  * ~~Read through the code and documentation, and test the endpoints with API explorer.~~
+  * ~~Understand how different entities are created, how they work together, and the overall flow.~~
+  * ~~Take a look at the admin Datastore viewer to check out the various entities.~~
 
 ### Task 2: Implement Your Own Game - _DONE_
 
