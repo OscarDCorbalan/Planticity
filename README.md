@@ -24,11 +24,11 @@ _In the Developing Scalable Apps with Python course you learned how to write pla
 
 Get the skeleton application up and running. Read through the code and documentation, and test the endpoints with API explorer. Make sure you understand how different entities are created, how they work together, and the overall flow. CMake sure to take a look at the admin Datastore viewer to check out the various entities. The datastore is typically at http://localhost:8000, but you may need to access it on another port.
 
-  * ~~Score Keeping: Define what a "score" for each game will be and keep this data in your database. You can record any other data that you think is interesting or relevant to your particular game.~~
-
 ### Task 2: Implement Your Own Game **DONE**
 
 Come up with a new game to implement! This could be an advanced guessing game such as Hangman, or a simple two player game like Tic-Tac-Toe. We want you to be creative!
+
+  * ~~Score Keeping: Define what a "score" for each game will be and keep this data in your database. You can record any other data that you think is interesting or relevant to your particular game.~~
 
 ### Task 3: Extend Your API **CURRENT WORK**
 
