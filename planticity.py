@@ -1,16 +1,19 @@
 import endpoints
 import logging
 from google.appengine.ext import ndb
-from messages.messages import (GameForm, GameForms, MakeMoveForm, NewGameForm,
-    StringMessage)
+from messages.messages import (GameForm, GameForms, MakeMoveForm,
+    NewGameForm, ScoreForms, StringMessage)
 from models.game import Game
+from models.score import Score
 from models.user import User
 from protorpc import remote, messages
 from utils import get_by_urlsafe
 
+LIMIT_RESULTS_REQUEST = endpoints.ResourceContainer(
+    number_of_results = messages.IntegerField(1, required=False))
 NEW_GAME_REQUEST = endpoints.ResourceContainer(NewGameForm)
 GET_GAME_REQUEST = endpoints.ResourceContainer(
-        urlsafe_game_key=messages.StringField(1))
+    urlsafe_game_key=messages.StringField(1))
 MAKE_MOVE_REQUEST = endpoints.ResourceContainer(
     MakeMoveForm,
     urlsafe_game_key=messages.StringField(1),)
@@ -36,6 +39,7 @@ class Planticity(remote.Service):
         return StringMessage(message='User {} created!'.format(
                 request.user_name))
 
+    # /games REST resource
 
     @endpoints.method(request_message=NEW_GAME_REQUEST,
                       response_message=GameForm,
@@ -102,5 +106,29 @@ class Planticity(remote.Service):
             raise endpoints.BadRequestException(e)
 
         return game.to_form(action_result)
+
+    # /scores 
+
+    @endpoints.method(request_message=LIMIT_RESULTS_REQUEST,
+                      response_message=ScoreForms,
+                      path='scores',
+                      name='get_high_scores',
+                      http_method='GET')
+    @endpoints.method(request_message=LIMIT_RESULTS_REQUEST,
+                      response_message=ScoreForms,
+                      path='scores/{number_of_results}',
+                      name='get_high_scores',
+                      http_method='GET')
+    def get_high_scores(self, request):
+        '''Returns a leaderboard, in score-descending order'''
+        scores = Score.query().order(-Score.harvest)
+        if request.number_of_results:
+            max_results = int(request.number_of_results)
+            # Omit negative values 
+            if max_results > 0:
+                # Force an upper bound of 1000 results
+                max_results = min(1000, max_results)
+                scores = scores.fetch(max_results)
+        return ScoreForms(items=[score.to_form() for score in scores])
 
 api = endpoints.api_server([Planticity])

@@ -1,9 +1,12 @@
 from protorpc import messages
 
+# Messages
+
 class StringMessage(messages.Message):
     """StringMessage-- outbound (single) string message"""
     message = messages.StringField(1, required=True)
 
+# Forms
 
 class NewGameForm(messages.Message):
     """Used to create a new game"""
@@ -30,6 +33,12 @@ class ScoreForm(messages.Message):
     date = messages.StringField(2, required=True)
     won = messages.BooleanField(3, required=True)
     harvest = messages.IntegerField(4, required=True)
+
+
+class ScoreForms(messages.Message):
+    """Return multiple ScoreForms"""
+    items = messages.MessageField(ScoreForm, 1, repeated=True)
+
 
 class MakeMoveForm(messages.Message):
     """Used to make a move in an existing game"""
