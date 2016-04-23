@@ -29,8 +29,7 @@ Get the skeleton application up and running.
 
 ### Task 2: Implement Your Own Game - _DONE_
 
-Come up with a new game to implement! This could be an advanced guessing game such as Hangman, or a simple two player game like Tic-Tac-Toe. We want you to be creative!
-
+  * ~~**Create a game**: Come up with a new game to implement! This could be an advanced guessing game such as Hangman, or a simple two player game like Tic-Tac-Toe. We want you to be creative!~~
   * ~~**Score Keeping**: Define what a "score" for each game will be and keep this data in your database. You can record any other data that you think is interesting or relevant to your particular game.~~
 
 ### Task 3: Extend Your API - _CURRENT WORK_
