@@ -111,6 +111,23 @@ class Planticity(remote.Service):
 
         return game.to_form(action_result)
 
+    @endpoints.method(request_message=GET_GAME_REQUEST,
+                      response_message=StringMessage,
+                      path='games/{urlsafe_game_key}',
+                      name='delete_game',
+                      http_method='DELETE')
+    def delete_game(self, request):
+        '''Deletes a game iff it's not finished'''
+        game = get_by_urlsafe(request.urlsafe_game_key, Game)
+        logging.debug('delete game %s', game)
+
+        if game.game_over:
+            raise endpoints.BadRequestException("Can't delete a finished game")
+
+        game.key.delete()
+        return StringMessage(
+            message='Game {} deleted'.format(request.urlsafe_game_key))
+
     # /scores 
 
     @endpoints.method(request_message=USER_REQUEST,
