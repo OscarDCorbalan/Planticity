@@ -1,7 +1,8 @@
 import logging
-from datetime import date
+from datetime import datetime
 from google.appengine.ext import ndb
 from messages.messages import GameForm
+from models.move import Move
 from models.score import Score
 from plant import Plant
 
@@ -11,6 +12,7 @@ class Game(ndb.Model):
     game_over = ndb.BooleanProperty(required=True, default=False)
     user = ndb.KeyProperty(required=True, kind='User')
     plant = ndb.KeyProperty(required=True, kind='Plant')
+    moves = ndb.KeyProperty(kind='Move', repeated=True)
 
     @classmethod
     def new_game(cls, user):
@@ -46,6 +48,13 @@ class Game(ndb.Model):
                 self.end_game(plant_ref.yielded())
         except NotImplementedError as e:
             raise e
+
+        move = Move(date = datetime.now(),
+                    action = action,
+                    result = plant_ref.look)
+        move.put()
+        self.moves.append(move.key)
+        self.put()
 
         return action_result
 
@@ -89,7 +98,7 @@ class Game(ndb.Model):
                       date=date.today(),
                       won=won,
                       harvest=self.plant.get().flowers)
-        
+
         score.put()
         user.put()
         self.put()
