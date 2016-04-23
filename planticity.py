@@ -23,9 +23,12 @@ USER_REQUEST = endpoints.ResourceContainer(user_name=messages.StringField(1),
 @endpoints.api(name='planticity', version='v1')
 class Planticity(remote.Service):
     '''Game API'''
+
+    # /users
+
     @endpoints.method(request_message=USER_REQUEST,
                       response_message=StringMessage,
-                      path='user',
+                      path='users',
                       name='create_user',
                       http_method='POST')
     def create_user(self, request):
@@ -39,11 +42,11 @@ class Planticity(remote.Service):
         return StringMessage(message='User {} created!'.format(
                 request.user_name))
 
-    # /games REST resource
+    # /games
 
     @endpoints.method(request_message=NEW_GAME_REQUEST,
                       response_message=GameForm,
-                      path='game',
+                      path='games',
                       name='new_game',
                       http_method='POST')
     def new_game(self, request):
@@ -59,6 +62,7 @@ class Planticity(remote.Service):
         # so it is performed out of sequence.
         # taskqueue.add(url='/tasks/cache_plant_status')
         return game.to_form('Good luck playing Planticity!')
+
 
     @endpoints.method(response_message=GameForms,
                       path='games',
