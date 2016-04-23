@@ -27,6 +27,17 @@ class GameForms(messages.Message):
     items = messages.MessageField(GameForm, 1, repeated=True)
 
 
+class RankingForm(messages.Message):
+    """RankingForm for outbound Ranking information"""
+    user_name = messages.StringField(1, required=True)
+    games_won = messages.IntegerField(2, required=True)
+
+
+class RankingForms(messages.Message):
+    """Return multiple RankingsForms"""
+    items = messages.MessageField(RankingForm, 1, repeated=True)
+
+
 class ScoreForm(messages.Message):
     """ScoreForm for outbound Score information"""
     user_name = messages.StringField(1, required=True)

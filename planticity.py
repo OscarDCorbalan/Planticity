@@ -1,8 +1,8 @@
 import endpoints
 import logging
 from google.appengine.ext import ndb
-from messages.messages import (GameForm, GameForms, MakeMoveForm,
-    NewGameForm, ScoreForms, StringMessage)
+from messages.messages import (GameForm, GameForms, MakeMoveForm, NewGameForm,
+    RankingForms, ScoreForms, StringMessage)
 from models.game import Game
 from models.score import Score
 from models.user import User
@@ -109,14 +109,39 @@ class Planticity(remote.Service):
 
     # /scores 
 
+    @endpoints.method(request_message=USER_REQUEST,
+                      response_message=ScoreForms,
+                      path='scores/user/{user_name}',
+                      name='get_user_scores',
+                      http_method='GET')
+    def get_user_scores(self, request):
+        '''Returns all of an individual User's scores'''
+        user = User.query(User.name == request.user_name).get()
+        if not user:
+            raise endpoints.NotFoundException(
+                    'A User with that name does not exist!')
+        scores = Score.query(Score.user == user.key).order(-Score.harvest)
+        return ScoreForms(items=[score.to_form() for score in scores])
+
+
+    @endpoints.method(response_message=RankingForms,
+                      path='scores/rankings',
+                      name='get_rankings',
+                      http_method='GET')
+    def get_rankings(self, request):
+        '''Returns user rankings, in best-first order'''
+        users = User.query().order(-User.games_won)
+        return RankingForms(items=[user.get_ranking() for user in users])
+
+
     @endpoints.method(request_message=LIMIT_RESULTS_REQUEST,
                       response_message=ScoreForms,
-                      path='scores',
+                      path='scores/leaderboard',
                       name='get_high_scores',
                       http_method='GET')
     @endpoints.method(request_message=LIMIT_RESULTS_REQUEST,
                       response_message=ScoreForms,
-                      path='scores/{number_of_results}',
+                      path='scores/leaderboard/{number_of_results}',
                       name='get_high_scores',
                       http_method='GET')
     def get_high_scores(self, request):

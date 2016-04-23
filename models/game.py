@@ -79,10 +79,17 @@ class Game(ndb.Model):
         Args:
             won: if won is True, the player won, else the player lost."""
         self.game_over = True
-        self.put()
+
+        user = self.user.get()
+        if won:
+            user.games_won += 1
+
         # Add the game to the score 'board'
         score = Score(user=self.user,
                       date=date.today(),
                       won=won,
                       harvest=self.plant.get().flowers)
+        
         score.put()
+        user.put()
+        self.put()
