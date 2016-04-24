@@ -44,8 +44,7 @@ _In the Developing Scalable Apps with Python course you learned how to write pla
 
 ### Task 4: Improve Notifications - _DONE_
 
-  * Notificacions:
-    - [x] Send an hourly reminder email to every User with an email address that have incomplete games (or some other logic that makes sense).
+  - [x] Send an hourly reminder email to every User with an email address that have incomplete games (or some other logic that makes sense).
 
 ### Task 5: README and API Documentation
 
