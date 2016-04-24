@@ -141,7 +141,7 @@ class Planticity(remote.Service):
                       name='get_game_history',
                       http_method='GET')
     def get_game_history(self, request):
-        '''Resturns the game moves history'''
+        '''Returns the game moves history'''
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
 
         if not game:
