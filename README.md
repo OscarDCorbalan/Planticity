@@ -49,10 +49,10 @@ _In the Developing Scalable Apps with Python course you learned how to write pla
 
 ### Task 5: README and API Documentation
 
-  * Be sure to document your game. Your README file should include:
-  * Instructions for playing the game
-  * Detailed descriptions of each endpoint
-  * Remember, you are documenting an API that another programmer may want to use as the basis for a web or mobile app. An api user should not need to read the source code to understand how to use it. You may follow the format of 'Guess a Number' for your README.
+  - [ ] Be sure to document your game. Your README file should include:
+  - [ ] Instructions for playing the game
+  - [ ] Detailed descriptions of each endpoint
+  - [ ] Remember, you are documenting an API that another programmer may want to use as the basis for a web or mobile app. An api user should not need to read the source code to understand how to use it. You may follow the format of 'Guess a Number' for your README.
 
 
 ### Reflect on Your Design
