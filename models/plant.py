@@ -5,14 +5,15 @@ from google.appengine.ext import ndb
 
 # Load species data
 # TODO put it in memcache to speed things up
-PLANT_SPECIES = json.loads(open('json/plant_species.json', 'r').read())['species']
+PLANT_SPECIES = json.loads(
+    open('json/plant_species.json', 'r').read())['species']
 """Object: Contains the species info contained in plant_species.json."""
 TEXTS = json.loads(open('json/plant_texts.json', 'r').read())['texts']
 """Object: Contains the text leterals contained in plant_texts.json."""
 
 # Status
 SEED = 'seed'
-PLANTED  = 'planted'  # Seed in soil
+PLANTED = 'planted'  # Seed in soil
 PLANT = 'plant'       # Growing plant
 MATURE = 'mature'     # Mature plant = flowering
 YIELD = 'yield'       # Game ended
@@ -90,15 +91,14 @@ class Plant(ndb.Model):
         Returns:
             A new Plant Model."""
         # TODO choose randomly
-        variety =  PLANT_SPECIES['Pisum Sativum']
-        plant = Plant(name = variety['name'],
-                      common_name = variety['common_name'],
-                      look = "It's a %s seed" %variety['common_name'])
+        variety = PLANT_SPECIES['Tester Plantum']
+        plant = Plant(name=variety['name'],
+                      common_name=variety['common_name'],
+                      look="It's a %s seed" % variety['common_name'])
         plant._update_look()
         plant.put()
         logging.debug('plant', plant)
         return plant
-
 
     def yielded(self):
         return self.status == YIELD
@@ -123,7 +123,7 @@ class Plant(ndb.Model):
         possible_actions = STATUS_ACTIONS[self.status]
         if not possible_actions:
             raise NotImplementedError('Status not recognized.')
-        if not action in possible_actions:
+        if action not in possible_actions:
             raise NotImplementedError('Action %s not recognized!' % action)
 
         # At this point the action is safe; no safety checks needed
@@ -180,14 +180,13 @@ class Plant(ndb.Model):
         if self.status == MATURE:
             self._blossom(data)
 
-        
         if self.status in [PLANT, MATURE]:
             # Roll against fungi and plague chances
             self._roll_fungi(data)
             self._roll_plague(data)
             # Adjust plant stress
             self._calc_plant_stress(data)
-        
+
         self._update_look()
 
     def _evolve(self, data):
@@ -210,8 +209,8 @@ class Plant(ndb.Model):
         Args:
             data: This species data extracted from plant_species.json"""
         # Reduce normal growth rate by stress %
-        day_growth = 0.01 * (100-self.stress) * data['growth_rate']
-        
+        day_growth = 0.01 * (100 - self.stress) * data['growth_rate']
+
         # If fertilizer is +- 10% of ideal value, bump it up to 33% (if diff=0)
         fertilizer_diff = abs(self._get_fertilizer_diff(data))
         if fertilizer_diff < 10:
@@ -230,7 +229,7 @@ class Plant(ndb.Model):
         # 20% (if diff=0)
         fertilizer_diff = abs(self._get_fertilizer_diff(data))
         if fertilizer_diff < 20:
-            fertilizer_diff = fertilizer_diff * 0.05 
+            fertilizer_diff = fertilizer_diff * 0.05
         else:
             fertilizer_diff = 1.2
         fertile_factor = 1.2 - fertilizer_diff
@@ -238,12 +237,13 @@ class Plant(ndb.Model):
         # Factor in plant size by direct correlation
         growth_factor = self.size / data['adult_size']
         # Reduce produced flowers by stress %
-        stress_factor = 1 - 0.01 * self.stress            
+        stress_factor = 1 - 0.01 * self.stress
         # Add a bit of salt to avoid repeating outputs
         random_factor = 0.01 * random.randint(90, 110)
         # ...and calucate
-        flower_factor = growth_factor * stress_factor * random_factor
-        daily_flowers = data[self.status]['flowers_day']            
+        flower_factor = \
+            fertile_factor * growth_factor * stress_factor * random_factor
+        daily_flowers = data[self.status]['flowers_day']
         fertile_flowers = flower_factor * daily_flowers
 
         self.flowers += int(fertile_flowers)
@@ -320,7 +320,7 @@ class Plant(ndb.Model):
 
     def _water(self):
         """Retains 30-70 percent of current moisture."""
-        retained_water = random.randint(30, 70)        
+        retained_water = random.randint(30, 70)
         logging.debug('_water cur:%s ret:%s', self.moisture, retained_water)
         self.moisture = min(self.moisture + retained_water, 100)
 
