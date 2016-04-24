@@ -60,7 +60,7 @@ TODO - write: planting seeds and growing plants to get harvests (score)
     - Description: Returns the game moves history.
     - Raises: NotFoundException if the Game does not exist. BadRequestException if the Game is already finished.
 
-  - **get_game_history**
+ - **get_game_history**
     - Path: 'games/{urlsafe_game_key}/history'
     - Method: GET
     - Parameters: urlsafe_game_key
