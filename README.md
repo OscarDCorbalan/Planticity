@@ -43,7 +43,7 @@ _In the Developing Scalable Apps with Python course you learned how to write pla
     * ~~Add the capability for a Game's history to be presented. For example: If a User played 'Guess a Number' with the moves: (5, 8, 7), and received messages such as: ('Too low!', 'Too high!', 'You win!'), an endpoint exposing the game_history might produce something like: [('Guess': 5, result: 'Too low'), ('Guess': 8, result: 'Too high'), ('Guess': 7, result: 'Win. Game over')].~~
 
   * Notificacions:
-    * Send an hourly reminder email to every User with an email address that have incomplete games (or some other logic that makes sense).
+    * ~~Send an hourly reminder email to every User with an email address that have incomplete games (or some other logic that makes sense).~~
     * Optional Improvements: implement more sophisticated notifications. For example: "If the User has not made a move in an active game for more than 12 hours, send a reminder email that includes the current game state."
 
   * Readme:
