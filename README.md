@@ -6,15 +6,91 @@ This project is a game built over Google App Engine and Google Datastore, meant 
  
 The engine is an API with endpoints that allows anyone to develop a front-end for the game.
  
+# Documentation
+
 ## Purpose of the game
 
-TODO - write: planting seeds and growing plants to get harvests
+TODO - write: planting seeds and growing plants to get harvests (score)
 
-## Scores
+## Endpoints Included:
+ - **create_user**
+    - Path: 'users'
+    - Method: POST
+    - Parameters: user_name, email (optional)
+    - Returns: Message confirming creation of the User.
+    - Description: Creates a new User. user_name provided must be unique.
+    - Raises: ConflictException if a User with that user_name already exists.
+    
+ - **new_game**
+    - Path: 'games'
+    - Method: POST
+    - Parameters: user_name
+    - Returns: GameForm with initial game state.
+    - Description: Creates a new Game. 
+    - Raises: NotFoundException if user_name does not exist.
 
-DONE - score is based on harvest
+ - **get_games**
+    - Path: 'games'
+    - Method: GET
+    - Parameters: -
+    - Returns: GameForms, which contains 1 GameForm (current state of the game) for every active game.
+    - Description: Return all the games created by the current user.
+     
+ - **get_game**
+    - Path: 'games/{urlsafe_game_key}'
+    - Method: GET
+    - Parameters: urlsafe_game_key
+    - Returns: GameForm with current game state.
+    - Description: Returns the current state of a game.
+    - Raises: NotFoundException if the game does not exist.
+    
+ - **make_move**
+    - Path: 'games/{urlsafe_game_key}'
+    - Method: PUT
+    - Parameters: urlsafe_game_key, action
+    - Returns: GameForm with new game state.
+    - Description: Accepts an 'action' and returns the updated state of the game, also creating a Move entity will be created, to keep the history of the game. If the action causes a game to end, a corresponding Score entity will be created. 
+    - Raises: NotFoundException if the game does not exist. BadRequestException if the 'action' is not possible.
+     
+ - **delete_game**
+    - Path: 'games/{urlsafe_game_key}'
+    - Method: DELETE
+    - Parameters: urlsafe_game_key
+    - Returns: Message confirming the deletion of the Game.
+    - Description: Returns the game moves history.
+    - Raises: NotFoundException if the Game does not exist. BadRequestException if the Game is already finished.
 
-## Requirements
+  - **get_game_history**
+    - Path: 'games/{urlsafe_game_key}/history'
+    - Method: GET
+    - Parameters: urlsafe_game_key
+    - Returns: MoveForms, which contains 1 MoveForm (date, action, result) for every move in the game.
+    - Description: Returns the game history.
+    - Raises: NotFoundException if the Game does not exist.
+    
+ - **get_rankings**
+    - Path: 'scores/rankings'
+    - Method: GET
+    - Parameters: -
+    - Returns: RankingForms.
+    - Description: Returns a list of the number of games won by each user, in highest-first order.
+
+ - **get_high_scores**
+    - Path: 'scores/leaderboard/{number_of_results}'
+    - Method: GET
+    - Parameters: number_of_results (optional)
+    - Returns: RankingForms.
+    - Description: Returns a list of the best scores by each user, in highest-first order. If parameter is present, limits the number of results to the number specified.
+    
+ - **get_user_scores**
+    - Path: 'scores/user/{user_name}'
+    - Method: GET
+    - Parameters: user_name
+    - Returns: ScoreForms, which contains 1 ScoreForm per game.
+    - Description: Returns all Scores recorded by the provided player, in highest-first order.
+    - Raises: Will raise a NotFoundException if the User does not exist.
+
+## Project Requirements
 
 ### Game API Project Overview
 
