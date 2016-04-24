@@ -38,9 +38,9 @@ _In the Developing Scalable Apps with Python course you learned how to write pla
   * ~~**cancel_game**: This endpoint allows users to cancel a game in progress. You could implement this by deleting the Game model itself, or add a Boolean field such as 'cancelled' to the model. Ensure that Users are not permitted to remove completed games.~~
   * ~~**get_high_scores**: Remember how you defined a score in Task 2? Now we will use that to generate a list of high scores in descending order, a leader-board! Accept an optional parameter number_of_results that limits the number of results returned.~~
   * ~~**get_user_rankings**: Come up with a method for ranking the performance of each player. Create an endpoint that returns this player ranking. The results should include each Player's name and the 'performance' indicator (eg. win/loss ratio).~~
-  * **get_game_history**: Your API Users may want to be able to see a 'history' of moves for each game. 
+  * ~~**get_game_history**: Your API Users may want to be able to see a 'history' of moves for each game.~~
     * ~~Define and save game history.~~
-    * Add the capability for a Game's history to be presented. For example: If a User played 'Guess a Number' with the moves: (5, 8, 7), and received messages such as: ('Too low!', 'Too high!', 'You win!'), an endpoint exposing the game_history might produce something like: [('Guess': 5, result: 'Too low'), ('Guess': 8, result: 'Too high'), ('Guess': 7, result: 'Win. Game over')].
+    * ~~Add the capability for a Game's history to be presented. For example: If a User played 'Guess a Number' with the moves: (5, 8, 7), and received messages such as: ('Too low!', 'Too high!', 'You win!'), an endpoint exposing the game_history might produce something like: [('Guess': 5, result: 'Too low'), ('Guess': 8, result: 'Too high'), ('Guess': 7, result: 'Win. Game over')].~~
 
   * Notificacions:
     * Send an hourly reminder email to every User with an email address that have incomplete games (or some other logic that makes sense).
