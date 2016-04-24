@@ -2,17 +2,20 @@ from protorpc import messages
 
 # Messages
 
+
 class StringMessage(messages.Message):
     """StringMessage-- outbound (single) string message"""
     message = messages.StringField(1, required=True)
 
+
 # Forms
+
 
 class NewGameForm(messages.Message):
     """Used to create a new game"""
     user_name = messages.StringField(1, required=True)
-    
-    
+
+
 class GameForm(messages.Message):
     """GameForm for outbound game state information"""
     urlsafe_key = messages.StringField(1, required=True)
@@ -20,8 +23,8 @@ class GameForm(messages.Message):
     game_over = messages.BooleanField(3, required=True)
     message = messages.StringField(4, required=True)
     user_name = messages.StringField(5, required=True)
-    
-    
+
+
 class GameForms(messages.Message):
     """Return multiple GameForm"""
     items = messages.MessageField(GameForm, 1, repeated=True)

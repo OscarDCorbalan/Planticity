@@ -1,6 +1,6 @@
 from google.appengine.ext import ndb
 from messages.messages import RankingForm
-import logging
+
 
 class User(ndb.Model):
     """Represents a User as an ndb Model"""

@@ -6,6 +6,7 @@ from models.move import Move
 from models.score import Score
 from plant import Plant
 
+
 class Game(ndb.Model):
     """Represents a Game object as an ndb Model"""
     # TODO: history = ndb.????
@@ -24,9 +25,9 @@ class Game(ndb.Model):
         Returns:
             A new game Model."""
 
-        game = Game(user = user,
-                    plant = Plant.new_plant().key,
-                    game_over = False)
+        game = Game(user=user,
+                    plant=Plant.new_plant().key,
+                    game_over=False)
         game.put()
         logging.debug('new_game:', game)
         return game
@@ -49,9 +50,9 @@ class Game(ndb.Model):
         except NotImplementedError as e:
             raise e
 
-        move = Move(date = datetime.now(),
-                    action = action,
-                    result = plant_ref.look)
+        move = Move(date=datetime.now(),
+                    action=action,
+                    result=plant_ref.look)
         move.put()
         self.moves.append(move.key)
         self.put()
