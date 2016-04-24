@@ -102,6 +102,9 @@ class Planticity(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         logging.debug('make_move game %s', game)
 
+        if not game:
+            raise endpoints.NotFoundException('Game not found!')
+
         if game.game_over:
             return game.to_form('Game already over!')
 
@@ -122,6 +125,9 @@ class Planticity(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         logging.debug('delete game %s', game)
 
+        if not game:
+            raise endpoints.NotFoundException('Game not found!')
+
         if game.game_over:
             raise endpoints.BadRequestException("Can't delete a finished game")
 
@@ -137,6 +143,10 @@ class Planticity(remote.Service):
     def get_game_history(self, request):
         '''Resturns the game moves history'''
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
+
+        if not game:
+            raise endpoints.NotFoundException('Game not found!')
+
         moves = game.moves
         return MoveForms(items=[move.get().to_form() for move in moves])
 
