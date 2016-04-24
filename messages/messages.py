@@ -27,6 +27,17 @@ class GameForms(messages.Message):
     items = messages.MessageField(GameForm, 1, repeated=True)
 
 
+class MoveForm(messages.Message):
+    date = messages.StringField(1, required=True)
+    action = messages.StringField(2, required=True)
+    result = messages.StringField(3, required=True)
+
+
+class MoveForms(messages.Message):
+    """Return multiple MoveForm"""
+    items = messages.MessageField(MoveForm, 1, repeated=True)
+
+
 class RankingForm(messages.Message):
     """RankingForm for outbound Ranking information"""
     user_name = messages.StringField(1, required=True)

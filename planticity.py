@@ -1,8 +1,8 @@
 import endpoints
 import logging
 from google.appengine.ext import ndb
-from messages.messages import (GameForm, GameForms, MakeMoveForm, NewGameForm,
-    RankingForms, ScoreForms, StringMessage)
+from messages.messages import (GameForm, GameForms, MakeMoveForm, MoveForms,
+    NewGameForm, RankingForms, ScoreForms, StringMessage)
 from models.game import Game
 from models.score import Score
 from models.user import User
@@ -127,6 +127,17 @@ class Planticity(remote.Service):
         game.key.delete()
         return StringMessage(
             message='Game {} deleted'.format(request.urlsafe_game_key))
+
+    @endpoints.method(request_message=GET_GAME_REQUEST,
+                      response_message=MoveForms,
+                      path='games/{urlsafe_game_key}/history',
+                      name='get_game_history',
+                      http_method='GET')
+    def get_game_history(self, request):
+        '''Resturns the game moves history'''
+        game = get_by_urlsafe(request.urlsafe_game_key, Game)
+        moves = game.moves
+        return MoveForms(items=[move.get().to_form() for move in moves])
 
     # /scores 
 

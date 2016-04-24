@@ -1,5 +1,6 @@
 import logging
 from google.appengine.ext import ndb
+from messages.messages import MoveForm
 
 
 class Move(ndb.Model):
@@ -7,3 +8,8 @@ class Move(ndb.Model):
     date = ndb.DateTimeProperty(required=True)
     action = ndb.StringProperty(required=True)
     result = ndb.StringProperty(required=True)
+
+    def to_form(self):
+        return MoveForm(date = str(self.date),
+                        action = self.action,
+                        result = self.result)
