@@ -52,7 +52,7 @@ _In the Developing Scalable Apps with Python course you learned how to write pla
 
 ### Other Udacity project requirements :
   * ~~Define what a "score" for each game will be and keep this data in database.~~
-  * A well engineered backend; extensible.
+  * ~~A well engineered backend; extensible.~~
   * ~~Each endpoint uses an appropriate HTTP Method.~~
 
 

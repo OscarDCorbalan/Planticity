@@ -4,10 +4,18 @@ runtime: python27
 api_version: 1
 threadsafe: yes
 
-handlers:
+handlers:       # static then dynamic
+
 - url: /favicon\.ico
   static_files: favicon.ico
   upload: favicon\.ico
+
+- url: /json
+  static_dir: static/json
+
+- url: /crons/send_reminder
+  script: main.app
+  login: admin
 
 - url: /_ah/spi/.*
   script: planticity.api
