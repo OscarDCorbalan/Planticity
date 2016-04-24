@@ -32,7 +32,7 @@ _In the Developing Scalable Apps with Python course you learned how to write pla
   * ~~**Create a game**: Come up with a new game to implement! This could be an advanced guessing game such as Hangman, or a simple two player game like Tic-Tac-Toe. We want you to be creative!~~
   * ~~**Score Keeping**: Define what a "score" for each game will be and keep this data in your database. You can record any other data that you think is interesting or relevant to your particular game.~~
 
-### Task 3: Extend Your API - _CURRENT WORK_
+### Task 3: Extend Your API - _DONE_
 
   * ~~**get_user_games**: This returns all of a User's active games. You may want to modify the User and Game models to simplify this type of query. Hint: it might make sense for each game to be a descendant of a User.~~
   * ~~**cancel_game**: This endpoint allows users to cancel a game in progress. You could implement this by deleting the Game model itself, or add a Boolean field such as 'cancelled' to the model. Ensure that Users are not permitted to remove completed games.~~
@@ -42,19 +42,17 @@ _In the Developing Scalable Apps with Python course you learned how to write pla
     * ~~Define and save game history.~~
     * ~~Add the capability for a Game's history to be presented. For example: If a User played 'Guess a Number' with the moves: (5, 8, 7), and received messages such as: ('Too low!', 'Too high!', 'You win!'), an endpoint exposing the game_history might produce something like: [('Guess': 5, result: 'Too low'), ('Guess': 8, result: 'Too high'), ('Guess': 7, result: 'Win. Game over')].~~
 
+### Task 4: Improve Notifications - _DONE_
+
   * Notificacions:
     * ~~Send an hourly reminder email to every User with an email address that have incomplete games (or some other logic that makes sense).~~
-    * Optional Improvements: implement more sophisticated notifications. For example: "If the User has not made a move in an active game for more than 12 hours, send a reminder email that includes the current game state."
 
-  * Readme:
-    * Instructions for playing the game
-    * Detailed descriptions of each endpoint
+### Task 5: README and API Documentation
 
-### Other Udacity project requirements :
-  * ~~Define what a "score" for each game will be and keep this data in database.~~
-  * ~~A well engineered backend; extensible.~~
-  * ~~Each endpoint uses an appropriate HTTP Method.~~
-
+  * Be sure to document your game. Your README file should include:
+  * Instructions for playing the game
+  * Detailed descriptions of each endpoint
+  * Remember, you are documenting an API that another programmer may want to use as the basis for a web or mobile app. An api user should not need to read the source code to understand how to use it. You may follow the format of 'Guess a Number' for your README.
 
 
 ### Reflect on Your Design
