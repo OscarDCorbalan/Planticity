@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import date, datetime
 from google.appengine.ext import ndb
 from messages.messages import GameForm
 from models.move import Move
