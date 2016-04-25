@@ -6,13 +6,53 @@ This project is a game built over Google App Engine and Google Datastore, meant 
  
 The engine is an API with endpoints that allows anyone to develop a front-end for the game.
  
+## Stack developed with:
+  - **Language**: [Python](http://python.org)
+  - **Cloud PaaS**: [App Engine](https://developers.google.com/appengine)
+  - **RESTful API created with**: [Google Cloud Endpoints](https://developers.google.com/appengine/docs/python/endpoints/)
+  - **noSQL Database**: [Google Datastore](https://cloud.google.com/datastore/)
+
 # Documentation
 
-## Purpose of the game
+## Game Description
 
-TODO - write: planting seeds and growing plants to get harvests (score)
+Planticity is a game about planting and growing plants to get harvests. Each game begins with a seed, e.g. a pea, which has to be planted and taken care of with a daily 'action' like watering, fertilizing or fumigating it, among other actions. As the game progresses, the seed evolves to a growing plant and then to a mature one, which will give you harvest in the form of new fecundated flowers every day, until it ends the end of its life.
 
-## Endpoints Included:
+'Actions' are sent to the `make_move` endpoint which will reply with the new plant status. Every species needs different care; for example, watering peas too much is a bad idea. Carefully reading the plant status after each action gives hints, as well as keeping track of of how much is it growing, or much it is blossoming, with some given conditions. The `get_game_history` endpoint is useful to read this info if you don't want to care tracking or remembering it.
+
+Possible actions are:
+  * **wait**: Do nothing this day.
+  * **plant seed**: Plants your seed, which will become a plant after a few days.
+  * **water**: Increments water available. Should be around your plant's ideal requirements for an optimum growth.
+  * **fungicide**: Removes plagues and prevents future fungi infection for some days, at the expense of incrementing the plant stress.
+  * **fumigate**: Removes plagues and prevents future plague infection for some days, at the expense of incrementing the plant stress.
+  * **fertilize**: Increases the nutrients present. Can cause toxicity when too high.
+
+
+Many different Planticity games can be played by many different Users at any given time. Each game can be retrieved or played by using the path parameter `urlsafe_game_key`.
+
+## Set-Up Instructions:
+
+If you want to develop or run locally the game, follow the next steps
+
+**Pre-requirements**:
+1. Install [Python 2.7](https://www.python.org/downloads/release/python-2710/) if you don't have it already.
+2. Grab a copy of the project. You can either:
+  * Clone the repo with git: `git clone https://github.com/OscarDoc/Planticity.git`.
+  * [Clone with GitHub Desktop](github-windows://openRepo/https://github.com/OscarDoc/Planticity).
+  * [Download the latest release](https://github.com/OscarDoc/Planticity/archive/master.zip)
+3. Create a Google Account and register in [Google App Engine](https://appengine.google.com/).
+4. Install the [Google App Engine SDK](https://cloud.google.com/appengine/downloads).
+
+**Developing or running locally**:
+1. Register (free) for a new application in App Engine.
+2. Update the value of application in app.yaml to the app ID you have registered in the App Engine admin console and would like to use to host your instance of this sample.
+3. Run the Google App Engine Launcher (installed with the SDK) with the devserver using the main repo directory, and ensure it's running by visiting the API Explorer - by default localhost:8080/_ah/api/explorer).
+4. (Optional) Generate your client library(ies) with the endpoints tool.
+5. (Optional) Deploy your application!
+
+## Endpoints Included
+
  - **create_user**
     - Path: 'users'
     - Method: POST
@@ -126,8 +166,8 @@ _In the Developing Scalable Apps with Python course you learned how to write pla
 
 README file should include:
   - [ ] Instructions for playing the game
-  - [ ] Detailed descriptions of each endpoint
-  - [ ] Remember, you are documenting an API that another programmer may want to use as the basis for a web or mobile app. An api user should not need to read the source code to understand how to use it. You may follow the format of 'Guess a Number' for your README.
+  - [x] Detailed descriptions of each endpoint
+  - [x] Remember, you are documenting an API that another programmer may want to use as the basis for a web or mobile app. An api user should not need to read the source code to understand how to use it. You may follow the format of 'Guess a Number' for your README.
 
 
 ### Reflect on Your Design
