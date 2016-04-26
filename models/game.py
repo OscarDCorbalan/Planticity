@@ -43,7 +43,7 @@ class Game(ndb.Model):
 
         plant_ref = self.plant.get()
         try:
-            action_result = plant_ref.interact(action)
+            plant_ref.interact(action)
             plant_ref.put()
             if plant_ref.dead:
                 self.end_game(plant_ref.yielded())
@@ -57,9 +57,7 @@ class Game(ndb.Model):
         self.moves.append(move.key)
         self.put()
 
-        return action_result
-
-    def to_form(self, message=None):
+    def to_form(self):
         """Returns a GameForm representation of the Game,
 
         Args:
@@ -75,12 +73,6 @@ class Game(ndb.Model):
         form.user_name = self.user.get().name
         form.game_status = self.plant.get().look
         form.game_over = self.game_over
-        if not self.game_over and message:
-            form.message = message
-        elif not self.game_over and not message:
-            form.message = 'Your turn!'
-        elif self.game_over:
-            form.message = 'Game already over!'
         return form
 
     def end_game(self, won=False):

@@ -63,7 +63,7 @@ class Planticity(remote.Service):
         # This operation is not needed to complete the creation of a new game
         # so it is performed out of sequence.
         # taskqueue.add(url='/tasks/cache_plant_status')
-        return game.to_form('Good luck playing Planticity!')
+        return game.to_form()
 
     @endpoints.method(response_message=GameForms,
                       path='games',
@@ -88,7 +88,7 @@ class Planticity(remote.Service):
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game:
             # TODO give detail about the plant status
-            return game.to_form('Time to take an action!')
+            return game.to_form()
         else:
             raise endpoints.NotFoundException('Game not found!')
 
@@ -106,14 +106,14 @@ class Planticity(remote.Service):
             raise endpoints.NotFoundException('Game not found!')
 
         if game.game_over:
-            return game.to_form('Game already over!')
+            return game.to_form()
 
         try:
-            action_result = game.take_action(request.action)
+            game.take_action(request.action)
         except NotImplementedError as e:
             raise endpoints.BadRequestException(e)
 
-        return game.to_form(action_result)
+        return game.to_form()
 
     @endpoints.method(request_message=GET_GAME_REQUEST,
                       response_message=StringMessage,

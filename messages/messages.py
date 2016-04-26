@@ -21,8 +21,7 @@ class GameForm(messages.Message):
     urlsafe_key = messages.StringField(1, required=True)
     game_status = messages.StringField(2, required=True)
     game_over = messages.BooleanField(3, required=True)
-    message = messages.StringField(4, required=True)
-    user_name = messages.StringField(5, required=True)
+    user_name = messages.StringField(4, required=True)
 
 
 class GameForms(messages.Message):

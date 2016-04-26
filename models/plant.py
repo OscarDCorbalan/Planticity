@@ -144,7 +144,6 @@ class Plant(ndb.Model):
             self._fertilize()
 
         self._end_day()
-        return self.status
 
     def _end_day(self):
         """Modifies the Plant variables, ending the current turn.
@@ -373,7 +372,7 @@ class Plant(ndb.Model):
         data = PLANT_SPECIES[self.name]
 
         if self.status == YIELD:
-            self.look = 'Game completed! Final yield %s' % self.flowers
+            self.look = 'Game completed! Final yield: %s' % self.flowers
             return
 
         if self.status == DEAD:
