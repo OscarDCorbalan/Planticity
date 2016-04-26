@@ -13,10 +13,11 @@ TEXTS = json.loads(open('json/plant_texts.json', 'r').read())['texts']
 
 # Status
 SEED = 'seed'
-PLANTED = 'planted'  # Seed in soil
+PLANTED = 'planted'   # Seed in soil
 PLANT = 'plant'       # Growing plant
 MATURE = 'mature'     # Mature plant = flowering
 YIELD = 'yield'       # Game ended
+DEAD = 'dead'         # Game over
 
 # Actions
 ACTIONS = {
@@ -57,6 +58,7 @@ STATUS_ACTIONS = {
     ],
     YIELD: []
 }
+
 
 class Plant(ndb.Model):
     """Represents a Plant object as an ndb Model"""
@@ -187,6 +189,9 @@ class Plant(ndb.Model):
             # Adjust plant stress
             self._calc_plant_stress(data)
 
+        if self.stress > 99:
+            self._kill()
+
         self._update_look()
 
     def _evolve(self, data):
@@ -316,6 +321,10 @@ class Plant(ndb.Model):
         self.status = YIELD
         self.dead = True
 
+    def _kill(self):
+        self.status = DEAD
+        self.dead = True
+
     # Methods that perform actions
 
     def _water(self):
@@ -365,6 +374,10 @@ class Plant(ndb.Model):
 
         if self.status == YIELD:
             self.look = 'Game completed! Final yield %s' % self.flowers
+            return
+
+        if self.status == DEAD:
+            self.look = 'The plant is dead... Be more careful the next time!'
             return
 
         looks = []  # Append texts and finally join them in a single string
