@@ -4,7 +4,7 @@ _This project is part of Udacity's Full Stack Developer Nanodegree._
 
 This project is a game built over Google App Engine and Google Datastore, meant to offer infinite scalability while being platform-agnostic.
  
-The engine is an API with endpoints that allows anyone to develop a front-end for the game.
+The engine is an API with REST endpoints that allow anyone to develop a front-end for the game.
  
 ## Stack developed with:
   - **Language**: [Python](http://python.org)
@@ -16,7 +16,7 @@ The engine is an API with endpoints that allows anyone to develop a front-end fo
 
 ## Game Description
 
-Planticity is a game about planting and growing plants to get harvests. Each game begins with a seed, e.g. a pea, which has to be planted and taken care of with a daily 'action' like watering, fertilizing or fumigating it, among other actions. As the game progresses, the seed evolves to a growing plant and then to a mature one, which will give you harvest in the form of new fecundated flowers every day, until it ends the end of its life.
+Planticity is a game about planting and growing plants to get harvests. Each game begins with a seed, e.g. a pea, which has to be planted and taken care of with a daily 'action' like watering, fertilizing or fumigating, among other actions. As the game progresses, the seed evolves to a growing plant and then to a mature one, which will give you harvest in the form of new fecundated flowers every day, until it ends the end of its life.
 
 'Actions' are sent to the `make_move` endpoint which will reply with the new plant status. Every species needs different care; for example, watering peas too much is a bad idea. Carefully reading the plant status after each action gives hints, as well as keeping track of of how much is it growing, or much it is blossoming, with some given conditions. The `get_game_history` endpoint is useful to read this info if you don't want to care tracking or remembering it.
 
@@ -130,7 +130,7 @@ If you want to develop or run locally the game, follow the next steps
     - Description: Returns all Scores recorded by the provided player, in highest-first order.
     - Raises: Will raise a NotFoundException if the User does not exist.
 
-## Project Requirements
+## Udacity Project Requirements
 
 ### Game API Project Overview
 
@@ -165,17 +165,9 @@ _In the Developing Scalable Apps with Python course you learned how to write pla
 ### Task 5: README and API Documentation
 
 README file should include:
-  - [ ] Instructions for playing the game
+  - [x] Instructions for playing the game
   - [x] Detailed descriptions of each endpoint
   - [x] Remember, you are documenting an API that another programmer may want to use as the basis for a web or mobile app. An api user should not need to read the source code to understand how to use it. You may follow the format of 'Guess a Number' for your README.
+  - [ ] Create design.txt file, around 500 characters long, explaining: model properties, abd trade-offs/struggles when implementing the game logic.
 
 
-### Reflect on Your Design
-Document your design decisions by answering the following questions:
-   
-- What additional properties did you add to your models and why?
-- What were some of the trade-offs or struggles you faced when implementing the new game logic?
-
-These answers should be in a file Design.txt.
-Your responses can be in paragraph form or bulleted lists.
-This document should be around 500 words long.
