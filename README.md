@@ -168,6 +168,6 @@ README file should include:
   - [x] Instructions for playing the game
   - [x] Detailed descriptions of each endpoint
   - [x] Remember, you are documenting an API that another programmer may want to use as the basis for a web or mobile app. An api user should not need to read the source code to understand how to use it. You may follow the format of 'Guess a Number' for your README.
-  - [ ] Create design.txt file, around 500 characters long, explaining: model properties, abd trade-offs/struggles when implementing the game logic.
+  - [x] Create design.txt file, around 500 characters long, explaining: model properties, abd trade-offs/struggles when implementing the game logic.
 
 
