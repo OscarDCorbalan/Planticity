@@ -17,6 +17,8 @@ GET_GAME_REQUEST = endpoints.ResourceContainer(
 MAKE_MOVE_REQUEST = endpoints.ResourceContainer(
     MakeMoveForm,
     urlsafe_game_key=messages.StringField(1),)
+USERNAME_REQUEST = endpoints.ResourceContainer(
+    user_name=messages.StringField(1))
 USER_REQUEST = endpoints.ResourceContainer(user_name=messages.StringField(1),
                                            email=messages.StringField(2))
 
@@ -152,7 +154,7 @@ class Planticity(remote.Service):
 
     # /scores
 
-    @endpoints.method(request_message=USER_REQUEST,
+    @endpoints.method(request_message=USERNAME_REQUEST,
                       response_message=ScoreForms,
                       path='scores/user/{user_name}',
                       name='get_user_scores',
