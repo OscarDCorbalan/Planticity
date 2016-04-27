@@ -5,6 +5,8 @@ _This project is part of Udacity's Full Stack Developer Nanodegree._
 This project is a game built over Google App Engine and Google Datastore, meant to offer infinite scalability while being platform-agnostic.
  
 The engine is an API with REST endpoints that allow anyone to develop a front-end for the game.
+
+Live at [App Engine](https://planticity-1.appspot.com/_ah/api/explorer)
  
 ## Stack developed with:
   - **Language**: [Python](http://python.org)
