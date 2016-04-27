@@ -89,7 +89,6 @@ class Planticity(remote.Service):
         '''Return the current game state.'''
         game = get_by_urlsafe(request.urlsafe_game_key, Game)
         if game:
-            # TODO give detail about the plant status
             return game.to_form()
         else:
             raise endpoints.NotFoundException('Game not found!')
