@@ -29,7 +29,7 @@ class Game(ndb.Model):
                     plant=Plant.new_plant().key,
                     game_over=False)
         game.put()
-        logging.debug('new_game:', game)
+        logging.debug('new_game %s', game)
         return game
 
     def take_action(self, action):
