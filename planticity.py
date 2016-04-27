@@ -40,6 +40,10 @@ class Planticity(remote.Service):
             raise endpoints.ConflictException(
                 'A User with that name already exists!')
 
+        if User.query(User.email == request.email).get():
+            raise endpoints.ConflictException(
+                'A User with that email already exists!')
+
         user = User(name=request.user_name, email=request.email)
         user.put()
 
@@ -75,6 +79,9 @@ class Planticity(remote.Service):
         '''Return all the games created by the user.'''
         user_email = endpoints.get_current_user().email()
         user_key = User.query(User.email == user_email).get().key
+        if not user_key:
+            raise endpoints.NotFoundException(
+                'Impossible to get scores if account has no email!')
         games = Game.query(Game.user == user_key, Game.game_over == False)
         logging.debug('Number of games retrieved: %s', games.count())
         game_forms = GameForms(items=[game.to_form() for game in games])
