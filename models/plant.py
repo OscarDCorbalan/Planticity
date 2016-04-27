@@ -4,7 +4,7 @@ import random
 from google.appengine.ext import ndb
 
 # Load species data
-# TODO put it in memcache to speed things up
+# ENHANCEMENT Put in memcache to speed things up
 PLANT_SPECIES = json.loads(
     open('json/plant_species.json', 'r').read())['species']
 """Object: Contains the species info contained in plant_species.json."""
@@ -82,7 +82,7 @@ class Plant(ndb.Model):
     plague = ndb.BooleanProperty(required=True, default=False)
     dead = ndb.BooleanProperty(required=True, default=False)
 
-    # Ideas for game extension
+    # ENHANCEMENT Ideas for game extension
     # place = ndb.StringProperty() # Potted, soil, greenhouse...
     # light = ndb.StringProperty() # Sun, semi or shadow
 
@@ -92,8 +92,8 @@ class Plant(ndb.Model):
 
         Returns:
             A new Plant Model."""
-        # TODO choose randomly
-        variety = PLANT_SPECIES['Tester Plantum']
+        # ENHANCEMENT choose randomly
+        variety = PLANT_SPECIES['Pisum Sativum']
         plant = Plant(name=variety['name'],
                       common_name=variety['common_name'],
                       look="It's a %s seed" % variety['common_name'])
