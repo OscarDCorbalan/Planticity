@@ -78,10 +78,12 @@ class Planticity(remote.Service):
     def get_games(self, request):
         '''Return all the games created by the user.'''
         user_email = endpoints.get_current_user().email()
-        user_key = User.query(User.email == user_email).get().key
-        if not user_key:
+        user = User.query(User.email == user_email).get()
+        if not user:
             raise endpoints.NotFoundException(
                 'Impossible to get scores if account has no email!')
+        user_key = user.key
+
         games = Game.query(Game.user == user_key, Game.game_over == False)
         logging.debug('Number of games retrieved: %s', games.count())
         game_forms = GameForms(items=[game.to_form() for game in games])
