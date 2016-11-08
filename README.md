@@ -3,11 +3,11 @@
 _This project is part of Udacity's Full Stack Developer Nanodegree._
 
 This project is a game built over Google App Engine and Google Datastore, meant to offer infinite scalability while being platform-agnostic.
- 
+
 The engine is an API with REST endpoints that allow anyone to develop a front-end for the game.
 
 Live at [App Engine](https://planticity-1.appspot.com/_ah/api/explorer)
- 
+
 ## Stack developed with:
   - **Language**: [Python](http://python.org)
   - **Cloud PaaS**: [App Engine](https://developers.google.com/appengine)
@@ -40,9 +40,9 @@ If you want to develop or run locally the game, follow the next steps
 **Pre-requirements**:
 1. Install [Python 2.7](https://www.python.org/downloads/release/python-2710/) if you don't have it already.
 2. Grab a copy of the project. You can either:
-  * Clone the repo with git: `git clone https://github.com/OscarDoc/Planticity.git`.
-  * [Clone with GitHub Desktop](github-windows://openRepo/https://github.com/OscarDoc/Planticity).
-  * [Download the latest release](https://github.com/OscarDoc/Planticity/archive/master.zip)
+  * Clone the repo with git: `git clone https://github.com/OscarDCorbalan/Planticity.git`.
+  * [Clone with GitHub Desktop](github-windows://openRepo/https://github.com/OscarDCorbalan/Planticity).
+  * [Download the latest release](https://github.com/OscarDCorbalan/Planticity/archive/master.zip)
 3. Create a Google Account and register in [Google App Engine](https://appengine.google.com/).
 4. Install the [Google App Engine SDK](https://cloud.google.com/appengine/downloads).
 
@@ -62,13 +62,13 @@ If you want to develop or run locally the game, follow the next steps
     - Returns: Message confirming creation of the User.
     - Description: Creates a new User. user_name provided must be unique.
     - Raises: ConflictException if a User with that user_name already exists.
-    
+
  - **new_game**
     - Path: 'games'
     - Method: POST
     - Parameters: user_name
     - Returns: GameForm with initial game state.
-    - Description: Creates a new Game. 
+    - Description: Creates a new Game.
     - Raises: NotFoundException if user_name does not exist.
 
  - **get_games**
@@ -77,7 +77,7 @@ If you want to develop or run locally the game, follow the next steps
     - Parameters: -
     - Returns: GameForms, which contains 1 GameForm (current state of the game) for every active game.
     - Description: Return all the games created by the current user.
-     
+
  - **get_game**
     - Path: 'games/{urlsafe_game_key}'
     - Method: GET
@@ -85,15 +85,15 @@ If you want to develop or run locally the game, follow the next steps
     - Returns: GameForm with current game state.
     - Description: Returns the current state of a game.
     - Raises: NotFoundException if the game does not exist.
-    
+
  - **make_move**
     - Path: 'games/{urlsafe_game_key}'
     - Method: PUT
     - Parameters: urlsafe_game_key, action
     - Returns: GameForm with new game state.
-    - Description: Accepts an 'action' and returns the updated state of the game, also creating a Move entity will be created, to keep the history of the game. If the action causes a game to end, a corresponding Score entity will be created. 
+    - Description: Accepts an 'action' and returns the updated state of the game, also creating a Move entity will be created, to keep the history of the game. If the action causes a game to end, a corresponding Score entity will be created.
     - Raises: NotFoundException if the game does not exist. BadRequestException if the 'action' is not possible.
-     
+
  - **delete_game**
     - Path: 'games/{urlsafe_game_key}'
     - Method: DELETE
@@ -109,7 +109,7 @@ If you want to develop or run locally the game, follow the next steps
     - Returns: MoveForms, which contains 1 MoveForm (date, action, result) for every move in the game.
     - Description: Returns the game history.
     - Raises: NotFoundException if the Game does not exist.
-    
+
  - **get_rankings**
     - Path: 'scores/rankings'
     - Method: GET
@@ -123,7 +123,7 @@ If you want to develop or run locally the game, follow the next steps
     - Parameters: number_of_results (optional)
     - Returns: RankingForms.
     - Description: Returns a list of the best scores by each user, in highest-first order. If parameter is present, limits the number of results to the number specified.
-    
+
  - **get_user_scores**
     - Path: 'scores/user/{user_name}'
     - Method: GET
@@ -172,4 +172,6 @@ README file should include:
   - [x] Remember, you are documenting an API that another programmer may want to use as the basis for a web or mobile app. An api user should not need to read the source code to understand how to use it. You may follow the format of 'Guess a Number' for your README.
   - [x] Create design.txt file, around 500 characters long, explaining: model properties, abd trade-offs/struggles when implementing the game logic.
 
+## Author
 
+[OscarDCorbalan](http://www.oscardc.com)
